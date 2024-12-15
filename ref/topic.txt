@@ -1,0 +1,26 @@
+Xây dựng ứng dụng quản lý sự kiện gồm các chức năng sau:
+- Đăng ký tài khoản mới
+- Đăng nhập vào tài khoản để sử dụng
+- Tạo mới một sự kiện. Thông tin về sự kiện gồm có thời điểm, địa điểm, loại sự kiện(Private hay Public) và mô tả về sự kiện
+- Gửi lời mời tới tham gia sự kiện tới bạn bè
+- Chấp nhận lời mời tham gia sự kiện
+- Gửi yêu cầu tham gia sự kiện Public nào đó
+- Chấp nhận yêu cầu tham gia sự kiện
+***
+- Xử lý truyền dòng: 1 điểm
+- Cài đặt cơ chế vào/ra socket trên server: 2 điểm
+- Đăng ký và quản lý tài khoản: 2 điểm
+- Đăng nhập và quản lý phiên: 2 điểm
+- Lấy danh sách sự kiện: 1 điểm
+- Tạo mới sự kiện: 1 điểm
+- Sửa thông tin sự kiện: 1 điểm
+- Xóa thông tin sự kiện: 1 điểm
+- Gửi lời mời kết bạn: 1 điểm
+- Chấp nhận/Từ chối lời mời kết bạn: 1 điểm
+- Hủy kết bạn: 1 điểm
+- Hiển thị danh sách bạn bè: 1 điểm
+- Gửi lời mời tham gia sự kiện: 1 điểm
+- Chấp nhận lời mời tham gia: 1 điểm
+- Yêu cầu tham gia sự kiện: 1 điệm
+- Chấp nhận yêu cầu tham gia sự kiện: 1 điểm
+- Ghi log hoạt động: 1 điểm

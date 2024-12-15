@@ -1,0 +1,50 @@
+#1 Cài đặt socket
+- Ứng dụng hoạt động trên cổng 6000 cho kết nối phổ thông và cổng 6060 cho kết nối của admin
+1.1 Xử lý truyền dòng (Sử dụng delimiter "\r\n")
+1.2 Cài đặt cơ chế IO multiplexing trên server (sử dụng poll() )
+1.3 Cài đặt cơ chế multithread
+- Sử dụng 1 thread để quản lý socket connection
+- Sử dụng 1 thread để xử lý các yêu cầu từ client
+- Tạo mới 1 thread để xử lý các yêu cầu từ admin và đóng thread này khi admin ngắt kết nối
+1.4 Cài đặt interface giao tiếp với database
+- Database dạng file text
+
+#2 Quản lý tài khoản
+- Thông tin tài khoản bao gồm tên đăng nhập, mật khẩu, danh sách bạn bè
+2.1 Đăng ký
+2.2 Đăng nhập
+2.3 Đổi mật khẩu
+
+#3 Quản lý phiên
+3.1 Tạo một phiên mới
+3.2 Cập nhật thông tin phiên
+3.3 Đóng một phiên
+
+#4 Quản lý sự kiện 1
+3.1 Tạo một sự kiện mới
+- Thông tin về sự kiện gồm có thời điểm, địa điểm, loại sự kiện (Private hay Public) và mô tả về sự kiện
+3.2 Xem danh sách các sự kiện
+3.3 Sửa thông tin sự kiện
+3.4 Xoá sự kiện
+
+#5 Quản lý danh sách bạn bè
+5.1 Gửi lời mời kết bạn
+5.2 Chấp nhận hoặc từ chối lời mời kết bạn
+5.3 Hiển thị danh sách bạn bè
+5.4 Hủy kết bạn
+
+#6 Quản lý sự kiện 2
+6.1 Gửi lời mời tham gia sự kiện
+6.2 Chấp nhận lời mời tham gia sự kiện
+6.3 Gửi yêu cầu tham gia sự kiện
+6.4 Chấp nhận yêu cầu tham gia sự kiện
+
+#7 Ghi log hoạt động
+7.1 Ghi log các hoạt động của server
+7.2 Ghi log các hoạt động của client
+
+#8 Administrator
+- Admin kết nối với server bằng cổng riêng (6060)
+8.1 Xem danh sách tài khoản
+8.2 Xem danh sách các phiên
+8.3 Xem danh sách các sự kiện

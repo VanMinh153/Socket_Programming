@@ -1,0 +1,27 @@
+project-root/
+├── client/
+│   ├── app.c
+│   ├── client.c
+│   └── client.h
+├── include/
+│   ├── config.h
+│   ├── database.c
+│   ├── database.h
+│   ├── event.c
+│   ├── event.h
+│   ├── logger.c
+│   ├── logger.h
+│   ├── session.c
+│   ├── session.h
+│   ├── tcp_socket.c
+│   ├── tcp_socket.h
+│   ├── user.c
+│   ├── user.h
+│   ├── utils.c
+│   └── utils.h
+├── server/
+│   ├── main.c
+│   ├── server.c
+│   └── server.h
+├── Makefile
+└── README.md
