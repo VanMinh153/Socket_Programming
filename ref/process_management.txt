@@ -5,53 +5,53 @@ Process management tags:
 [cancelled]
 [restarted]
 
-[not started] #1 Cài đặt socket
+[in process] #1 Cài đặt socket
 - Ứng dụng hoạt động trên cổng 6000 cho kết nối phổ thông và cổng 6060 cho kết nối của admin
-[not started] 1.1 Xử lý truyền dòng (Sử dụng delimiter "\r\n")
-[not started] 1.2 Cài đặt cơ chế IO multiplexing trên server (sử dụng poll() )
-[not started] 1.3 Cài đặt cơ chế multithread
+[in process] 1.1 Xử lý truyền dòng (Sử dụng delimiter "\r\n")
+[in process] 1.2 Cài đặt cơ chế IO multiplexing trên server (sử dụng poll() )
+[in process] 1.3 Cài đặt cơ chế multithread
 - Sử dụng 1 thread để quản lý socket connection
 - Sử dụng 1 thread để xử lý các yêu cầu từ client
 - Tạo mới 1 thread để xử lý các yêu cầu từ admin và đóng thread này khi admin ngắt kết nối
-[not started] 1.4 Cài đặt interface giao tiếp với database
+[in process] 1.4 Cài đặt interface giao tiếp với database
 - Database dạng file text
 
-[not started] #2 Quản lý tài khoản
+[in process] #2 Quản lý tài khoản
 - Thông tin tài khoản bao gồm tên đăng nhập, mật khẩu, danh sách bạn bè
-[not started] 2.1 Đăng ký
-[not started] 2.2 Đăng nhập
-[not started] 2.3 Đổi mật khẩu
+[in process] 2.1 Đăng ký
+[in process] 2.2 Đăng nhập
+[in process] 2.3 Đổi mật khẩu
 
-[not started] #3 Quản lý phiên
-[not started] 3.1 Tạo một phiên mới
-[not started] 3.2 Cập nhật thông tin phiên
-[not started] 3.3 Đóng một phiên
+[in process] #3 Quản lý phiên
+[in process] 3.1 Tạo một phiên mới
+[in process] 3.2 Cập nhật thông tin phiên
+[in process] 3.3 Đóng một phiên
 
-[not started] #4 Quản lý sự kiện 1
-[not started] 3.1 Tạo một sự kiện mới
+[in process] #4 Quản lý sự kiện 1
+[in process] 3.1 Tạo một sự kiện mới
 - Thông tin về sự kiện gồm có thời điểm, địa điểm, loại sự kiện (Private hay Public) và mô tả về sự kiện
-[not started] 3.2 Xem danh sách các sự kiện
-[not started] 3.3 Sửa thông tin sự kiện
-[not started] 3.4 Xoá sự kiện
+[in process] 3.2 Xem danh sách các sự kiện
+[in process] 3.3 Sửa thông tin sự kiện
+[in process] 3.4 Xoá sự kiện
 
-[not started] #5 Quản lý danh sách bạn bè
-[not started] 5.1 Gửi lời mời kết bạn
-[not started] 5.2 Chấp nhận hoặc từ chối lời mời kết bạn
-[not started] 5.3 Hiển thị danh sách bạn bè
-[not started] 5.4 Hủy kết bạn
+[in process] #5 Quản lý danh sách bạn bè
+[in process] 5.1 Gửi lời mời kết bạn
+[in process] 5.2 Chấp nhận hoặc từ chối lời mời kết bạn
+[in process] 5.3 Hiển thị danh sách bạn bè
+[in process] 5.4 Hủy kết bạn
 
-[not started] #6 Quản lý sự kiện 2
-[not started] 6.1 Gửi lời mời tham gia sự kiện
-[not started] 6.2 Chấp nhận lời mời tham gia sự kiện
-[not started] 6.3 Gửi yêu cầu tham gia sự kiện
-[not started] 6.4 Chấp nhận yêu cầu tham gia sự kiện
+[in process] #6 Quản lý sự kiện 2
+[in process] 6.1 Gửi lời mời tham gia sự kiện
+[in process] 6.2 Chấp nhận lời mời tham gia sự kiện
+[in process] 6.3 Gửi yêu cầu tham gia sự kiện
+[in process] 6.4 Chấp nhận yêu cầu tham gia sự kiện
 
-[not started] #7 Ghi log hoạt động
-[not started] 7.1 Ghi log các hoạt động của server
-[not started] 7.2 Ghi log các hoạt động của client
+[in process] #7 Ghi log hoạt động
+[in process] 7.1 Ghi log các hoạt động của server
+[in process] 7.2 Ghi log các hoạt động của client
 
-[not started] #8 Administrator
+[in process] #8 Administrator
 - Admin kết nối với server bằng cổng riêng (6060)
-[not started] 8.1 Xem danh sách tài khoản
-[not started] 8.2 Xem danh sách các phiên
-[not started] 8.3 Xem danh sách các sự kiện
+[in process] 8.1 Xem danh sách tài khoản
+[in process] 8.2 Xem danh sách các phiên
+[in process] 8.3 Xem danh sách các sự kiện
