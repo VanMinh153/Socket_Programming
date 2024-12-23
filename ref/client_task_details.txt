@@ -1,0 +1,203 @@
+# Event Management Application
+- Feature for user
+  Account management
+    Login, sign up, change password, logout
+    Make friend
+  Event management
+    CRUD events, send a invitation, accept the invitation
+    Request to join, accept the request
+- Feature for administrator
+  View database
+  View log history
+________________________________________________________________________
+# Screen 1: Login page
+_________________________________________________
+|                                                |
+|         Event Management Application           |
+|________________________________________________|
+
+  1. Login
+  2. Register
+  Choose feature [1-2]: 
+
+Demo:
+  Choose feature [1-2]: 1
+  Enter username: user1
+  Enter password: 123
+  > Login successfully
+  !> Password is incorrect
+  !> Username or password syntax is incorrect
+
+  Choose feature [1-2]: 2
+  Enter username: user1
+  Enter password: 123
+  > Register successfully
+  !> Username is already taken
+
+________________________________________________________________________
+# Screen 2: Homepage
+_________________________________________________
+|                                                |
+|         Event Management Application           |
+|________________________________________________|
+
+  1. Manage event you joined
+  2. Manage event you created
+  3. Manage your friend List
+  4. Show other events
+  5. Show other users
+  6. Manage your account
+  7. Notification center
+  8. Logout
+  Choose feature [1-6]: 
+
+________________________________________________________________________
+# Screen 2.1: Manage event you joined
+_________________________________________________
+|                                                |
+|         Event Management Application           |
+|________________________________________________|
+  My event list
+  id | name | date | type | number of members | status | your role |
+  ...
+  1. Send invitation
+  2. Show details
+  3. Go back
+  Choose feature [1-6]: 
+
+Demo:
+Choose feature [1-6]: 1
+  Enter event name: event1
+  Enter event date (dd/mm/yyyy): 31/12/2024
+  Enter event type (0/Public, 1/Private): 0
+  Enter event location: Ha Noi
+  > Create event successfully
+________________________________________________________________________
+# Screen 2.1.5: Manage event you created
+_________________________________________________
+|                                                |
+|         Event Management Application           |
+|________________________________________________|
+  id: 
+  name: 
+  date:
+  type:
+  location:
+  number of member:
+  member list:
+  status:
+  details:
+  Request to join | My invitation
+  ...
+  1. Accept request
+  2. Reject request
+  3. Send invitation
+  4. Take back invitation
+  5. Go back
+  Choose feature [1-5]: 
+
+Demo:
+Choose feature [1-3]: 1
+  Enter username: user2
+  > Accept request successfully
+________________________________________________________________________
+# Screen 2.4: Show other events
+_________________________________________________
+|                                                |
+|         Event Management Application           |
+|________________________________________________|
+  My event list
+  id | name | date | type | number of members | status | owner |
+  ...
+  1. Create event
+  2. Update event
+  3. Delete event
+  4. Send invitation
+  5. Show details
+  6. Go back
+  Choose feature [1-6]: 
+________________________________________________________________________
+# Screen 2.1.2: Show events details
+_________________________________________________
+|                                                |
+|         Event Management Application           |
+|________________________________________________|
+  id: 
+  name: 
+  date:
+  type:
+  location:
+  number of member:
+  member list:
+  status:
+  owner:
+  details:
+  
+  You are a member | You are not a member
+  My invitation:
+
+  1. Send invitation
+  2. Take back invitation
+  3. Go to details
+  4. Go back
+  Choose feature [1-5]: 
+
+________________________________________________________________________
+________________________________________________________________________
+# Screen 2.2: Account management
+_________________________________________________
+|                                                |
+|         Event Management Application           |
+|________________________________________________|
+  My friend | Friend request | My invitation
+  ...
+  1. Accept request
+  2. Reject request
+  3. Take back invitation
+  3. Unfriend
+  5. Go back
+  Choose feature [1-5]: 
+
+Demo:
+Choose feature [1-5]: 1
+  Enter username: user2
+  > Accept request successfully
+________________________________________________________________________
+# Screen 2.4: Show all users
+_________________________________________________
+|                                                |
+|         Event Management Application           |
+|________________________________________________|
+  Account management
+  Username | Friend request | My invitation
+  ...
+  1. Accept request
+  2. Reject request
+  3. Go back
+  Choose feature [1-7]: 
+________________________________________________________________________
+# Screen 2.2: Account management
+_________________________________________________
+|                                                |
+|         Event Management Application           |
+|________________________________________________|
+  Account management
+  My friend | Friend request | My invitation
+  ...
+  1. Accept request
+  2. Reject request
+  3. Go back
+  Choose feature [1-7]: 
+________________________________________________________________________
+# Screen 2.2: Account management
+_________________________________________________
+|                                                |
+|         Event Management Application           |
+|________________________________________________|
+  Account management
+  My friend | Friend request | My invitation
+  ...
+  1. Accept request
+  2. Reject request
+  3. Go back
+  Choose feature [1-7]: 

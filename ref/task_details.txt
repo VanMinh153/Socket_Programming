@@ -1,0 +1,463 @@
+# Event Management Application
+- Feature for user
+  Account management
+    Login, sign up, change password, logout
+    Make friend
+  Event management
+    CRUD events, send a invitation, accept the invitation
+    Request to join, accept the request
+- Feature for administrator
+  View database
+  View log history
+________________________________________________________________________
+// Format for a task:
+#'Task id' 'Task name'
+- Feature
+- Datatype
+- Database
+- Command
+- Protocol
+
+Library
+- define
+- global variable
+- function
+________________________________________________________________________
+// Below are the list of tasks
+#1 Socket Setup
+- The application operates on port 6000 for general connections and port 6060 for admin connections
+1.1 Stream handling (Using delimiter "\r\n")
+1.2 Installing IO multiplexing mechanism on the server (using poll() )
+1.3 Installing multithread mechanism
+- Using 1 thread to manage socket connection
+- Using 1 thread to handle requests from clients
+- Creating a new thread to handle requests from admin and closing this thread when admin disconnects
+close the session command: 'exit'
+________________________________________________________________________
+Library config.h
+- define
+  MAX_CLIENTS 1000
+  LEN_MSG 1024
+  SIZE_BUFFER_MSG LEN_MSG
+
+  DB_ACCOUNTS "accounts.txt"
+  DB_EVENTS "events.txt"
+
+________________________________________________________________________
+#2 Account management
+- Feature
+  Login
+  Sign up
+  Change password
+  Logout
+
+- Datatype
+struct account_t {
+  int id;
+  char username[LEN_USERNAME+1];
+  char password[LEN_PASSWORS+1];
+  int friends[MAX_FRIENDS];
+  int friend_requests[MAX_FRIEND_REQUESTS];
+  int friend_invites[MAX_FRIEND_INVITES];
+  int event_joins[MAX_EVENT_JOINS];
+  int event_requests[MAX_EVENT_REQUESTS];
+  int event_invites[MAX_EVENT_INVITES][2];
+}
+// any integer element equal 0 mean that is null
+// event_invites[i][0] = inviter_id
+// event_invites[i][1] = event_id
+
+Username may only contain alphanumeric characters or single hyphens `-`, and cannot begin or end with a hyphen.
+Password may only contain alphanumeric characters.
+
+- Database
+File text DB_ACCOUNTS. Format in a line:
+id | username | password | friends | friend_requests | friend_invites | event_joins | event_requests | event_invites
+
+Pseudocode {
+  for i : 0 -> count_accounts {
+    printf("%d | %s | %s |", 
+      accounts[i].id accounts[i].username accounts[i].password );
+    
+    for j : 0 -> MAX_FRIENDS {
+      if (accounts[i].friends[j] == 0) break;
+      printf(" %d", accounts[i].friends[j]);
+    }
+    printf(" |");
+    
+    for j : 0 -> MAX_FRIEND_INVITES {
+      if (accounts[i].friend_invites[j] == 0) break;
+      printf(" %d", accounts[i].friend_invites[j]);
+    }
+    printf(" |");
+
+    for j : 0 -> MAX_EVENT_JOINS {
+      if (accounts[i].event_joins[j] == 0) break;
+      printf(" %d", accounts[i].event_joins[j]);
+    }
+    printf(" |");
+
+    for j : 0 -> MAX_EVENT_INVITES {
+      if (accounts[i].event_invites[j] == 0) break;
+      printf(" %d", accounts[i].event_invites[j]);
+    }
+    printf(" |");
+
+    for i : 0 -> MAX_EVENT_REQUESTS {
+      if (accounts[i].event_requests[j][0] == 0) break;
+      printf(" %d,%d", accounts[i].event_requests[i][0], accounts[i].event_requests[i][1]);
+    }
+    printf("\n");
+  }
+}
+
+- Command
+  login 'username' 'password'
+  register 'username' 'password'
+  // for logged statement
+  change_username 'cur_password' 'new_username'
+  change_password 'cur_password' 'new_password'
+  logout
+
+- Protocol
+  'all command'
+  > OK
+  !> NOT_FOUND_COMMAND
+  !> INVALID_OPTION
+  !> INCORRECT_PARAM
+  !> NOT_FOUND
+
+  login 'username' 'password'
+  !> INCORRECT_PASSWORD
+
+  register 'username' 'password'
+  !> EXISTED_USERNAME
+
+  change_username 'cur_password' 'new_username'
+  !> INCORRECT_PASSWORD
+
+  change_password 'cur_password' 'new_password'
+  !> INCORRECT_PASSWORD
+
+Library 'account.h'
+- define
+  LEN_USERNAME 30
+  LEN_PASSWORD 30
+  MAX_FRIENDS 100
+  MAX_FRIEND_REQUESTS 50
+  MAX_FRIEND_INVITES 50
+  MAX_EVENT_JOINS 100
+  MAX_EVENT_REQUESTS 50
+  MAX_EVENT_INVITES 50
+
+  MAX_ACCOUNTS 1000
+  USERNAME_REGEX "^[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*$"
+
+- global variable
+  account_t accounts[MAX_ACCOUNTS]
+  int count_accounts
+  int gen_account_id
+
+- function
+int handle_login(char* username, char *password)
+  Return:
+  0: if username existed and password is correct
+  1: if username existed and password is incorrect
+  2: if username not existed
+
+int handle_signup(char* username, char *password)
+  Brief: save new account to global variable accounts
+  Return:
+  0: if username not existed
+  1: if username has been existed
+
+int handle_change_password(char* username, char* cur_password, char *new_password)
+  Return:
+  0: if cur_password is correct
+  1: if cur_password is incorrect
+
+int check_format_username(char* username)
+  Return:
+  0: if the format is correct
+  1: if the format is incorrect
+
+int check_format_password(char* password)
+  Return:
+  0: if the format is correct
+  1: if the format is incorrect
+
+int db_read_accounts()
+  Brief: Read accounts from file DB_ACCOUNTS and save to global variable 'accounts'
+         Assign number of accounts has been readed to global variable 'count_accounts'
+  Return:
+  0: if success
+  1: if can not read file
+
+int db_save_accounts(account_t* accounts)
+  Brief: Save accounts from global variable 'accounts' to file DB_ACCOUNTS
+  Return:
+  0: if success
+  1: if can not write to file
+
+________________________________________________________________________
+#3 Session management
+- Feature
+  CRUD sessions
+
+- Datatype
+struct session_t {
+  char username[LEN_USERNAME+1];
+  bool logged;
+  int connfd;
+  char recv_buffer[SIZE_BUFFER_MSG];
+}
+
+Library
+- define
+  MAX_SESSIONS MAX_CLIENTS
+
+- global variable
+  session_t sessions[MAX_SESSIONS]
+  int count_sessions
+
+- function
+int creat_session(int connfd)
+  Brief: save new session to global variable 'sessions'
+  Return:
+  0: if success
+
+int delete_session(int connfd)
+  Brief: remove a session from global variable 'sessions'
+  Return:
+  0: if success
+________________________________________________________________________
+#4 Manage friend list
+- Feature
+  Send friend request
+  Accept/reject friend request
+  Show friend list
+  Unfriend
+
+- Datatype
+ref: struct account_t {
+  int id;
+  char username[LEN_USERNAME+1];
+  char password[LEN_PASSWORS+1];
+  int friends[MAX_FRIENDS];
+  int friend_requests[MAX_FRIEND_REQUESTS];
+  int friend_invites[MAX_FRIEND_INVITES];
+  int event_joins[MAX_EVENT_JOINS];
+  int event_requests[MAX_EVENT_REQUESTS];
+  int event_invites[MAX_EVENT_INVITES][2];
+}
+
+- Command
+  list -accounts
+  friend -list
+  friend -list_requests
+  friend -list_invites
+  friend -make 'username'
+  friend -take_back 'username'
+  friend -accept 'username'
+  friend -reject 'username'
+  friend -unfriend 'username'
+
+- Protocol
+  'all command'
+  > OK
+  !> NOT_FOUND_COMMAND
+  !> INVALID_OPTION
+  !> INCORRECT_PARAM
+  !> NOT_FOUND
+
+  list -accounts
+  > OK 'list of username in system'
+
+  friend -list
+  > OK 'friend list'
+
+  friend -list_requests
+  > OK 'make friend request list'
+  
+  friend -list_invites
+  > OK 'make friend request list'
+
+Library
+- function
+int create_friend_invites(char* username)
+  Brief: save invited_account.id to cur_account.invites
+         save cur_account.id to invited_account.requests
+
+int take_back_friend_invites(char* username)
+  Brief: remove invited_account.id from cur_account.invites
+         remove cur_account.id from invited_account.requests
+
+int accept_friend_request(char* username)
+  Brief: save requested_account.id to cur_account.friends
+
+int reject_friend_request(char* username)
+  Brief: remove requested_account.id from cur_account.requests
+
+int unfriend(char* username)
+  Brief: remove that_account.id from cur_account.friends
+________________________________________________________________________
+#5 Event management 1
+- Feature
+  CRUD events
+
+- Datatype
+event_t {
+  int id;
+  char name[LEN_EVENT_NAME+1];
+  char date[LEN_EVENT_DATE+1];
+  char address[LEN_EVENT_ADDRESS+1];
+  int type;
+  char details[LEN_EVENT_DETAILS+1];
+  int owner;
+  int members[MAX_MEMBERS];
+  int requests[MAX_REQUESTS];
+}
+event_type: 0: public, 1: private
+
+- Database
+File text DB_EVENTS. Format in a line:
+id | name | address | details | owner | members | requests
+
+- Command
+  event -make 'event name' | 'address' | 'event type' | 'event details'
+  event -list
+  event -update 'event id' > 'event name' | 'address' | 'event type' | 'event details'
+  event -delete 'event id'
+
+- Protocol
+  'all command'
+  > OK
+  !> NOT_FOUND_COMMAND
+  !> INVALID_OPTION
+  !> INCORRECT_PARAM
+  !> NOT_FOUND
+  
+  event -make 'event name' | 'address' | 'event type' | 'event details'
+  event -list
+  > OK 'event list'
+
+  event -update 'event id' > 'event name' | 'address' | 'event type' | 'event details'
+  event -delete 'event id'
+
+Library
+- define
+  LEN_EVENT_NAME 50
+  LEN_EVENT_ADDRESS 100
+  LEN_EVENT_DETAILS 500
+  MAX_MEMBERS 100
+  MAX_REQUESTS 100
+
+  MAX_EVENTS 1000
+
+- global variable
+  event_t events[MAX_EVENTS]
+  int count_events
+  int gen_event_id
+
+- function
+int create_event(char* name, char* address, int type, char* details)
+  Brief: save this event to global variable events
+         save with id = gen_event_id 
+            and owner = cur_account.id
+
+int update_event(int id, char* name, char* address, int type, char* details)
+  Brief: update event info to global variable events
+
+int delete_event(int id)
+  Brief: remove event 'id' from global variable events
+________________________________________________________________________
+#6 Event management 2
+- Feature
+  Send invitation to join a event
+  Accept event invitation
+  Send event request
+  Accept event request
+
+- Command
+  // for event's members
+  event -invite 'username' 'event id'
+  event -take_back 'username' 'event id'
+  
+  // for event's owner
+  event -accept 'username' 'event id'
+  event -reject 'username' 'event id'
+
+  // for all user
+  event2 -request 'event id'
+  event2 -take_back 'event id'
+  event2 -accept 'username' 'event id'
+  event2 -reject 'username' 'event id'
+
+- Protocol
+  'all command'
+  > OK
+  !> NOT_FOUND_COMMAND
+  !> INVALID_OPTION
+  !> INCORRECT_PARAM
+
+Library
+- function
+// for event's members
+int create_event_invites(char* username, int event_id)
+int take_back_event_invites(char* username, int event_id)
+
+// for event's owner
+int admin_accept_event_request(char* username, int event_id)
+int admin_reject_event_request(char* username, int event_id)
+
+// for all user
+int create_event_request(int event_id)
+int take_back_event_request(int event_id)
+int accept_event_request(char* username, int event_id)
+int reject_event_request(char* username, int event_id)
+
+________________________________________________________________________
+#7 Log activities
+- Feature
+  Log server activities
+  Log client activities
+
+- Log format
+time | ip | port | username | command | status
+
+Library 
+- define
+  DB_LOG "log.txt"
+- function
+int log_activity(char* ip, int port, char* username, char* command, char* status)
+  Brief: save log to file DB_LOG
+  Return:
+  0: if success
+  1: if can not write to file
+________________________________________________________________________
+#8 Administrator
+- Admin connects to the server using a private port (6060)
+- Feature
+  View account list
+  View session list
+  View event list
+  View log history
+
+
+- Command
+  admin -list_accounts
+  admin -list_sessions
+  admin -list_events
+  admin -list_logs
+
+- Protocol
+  'all command'
+  > OK
+  !> NOT_FOUND_COMMAND
+  !> INVALID_OPTION
+  !> INCORRECT_PARAM
+  !> NOT_FOUND
+
+Library
+- function
+

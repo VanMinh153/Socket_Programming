@@ -1,0 +1,2 @@
+Alt + [Num] - Go to tab [Num]
+Ctrl + K [Arrow key] - Go to group in [Arrow key] side

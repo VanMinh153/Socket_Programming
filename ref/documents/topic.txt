@@ -1,3 +1,30 @@
+Build an event management application with the following functions:
+- Register a new account
+- Log in to the account to use
+- Create a new event. Event information includes time, location, event type (Private or Public) and event description
+- Send event invitations to friends
+- Accept event invitations
+- Send requests to join certain Public events
+- Accept event requests
+***
+- Stream processing: 1 point
+- Set up socket input/output mechanism on server: 2 points
+- Register and manage accounts: 2 points
+- Log in and manage sessions: 2 points
+- Get event list: 1 point
+- Create new event: 1 point
+- Edit event information: 1 point
+- Delete event information: 1 point
+- Send friend request: 1 point
+- Accept/Reject friend request: 1 point
+- Unfriend: 1 point
+- Show friend list: 1 point
+- Send event invitation: 1 point
+- Accept invitation to join: 1 points
+- Request to join event: 1 point
+- Accept request to join event: 1 point
+- Log activity: 1 point
+________________________________________________________________________
 Xây dựng ứng dụng quản lý sự kiện gồm các chức năng sau:
 - Đăng ký tài khoản mới
 - Đăng nhập vào tài khoản để sử dụng
