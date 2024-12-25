@@ -1,5 +1,6 @@
-#ifndef __TCP_SOCKET_H__
-#define __TCP_SOCKET_H__
+#ifndef TCP_SOCKET_H
+#define TCP_SOCKET_H
+// Functions for handling connections on ports 6000 and 6060
 
 #include <arpa/inet.h>
 #include <netinet/in.h>
@@ -23,4 +24,4 @@ int recv_msg(int fd, char *buf, char *msg_buf);
 int getmsg(char *buf, char *msg_buf);
 int getmsg_2(char *buf, char *recv_buf, char *msg_buf);
 
-#endif // __TCP_SOCKET_H__
+#endif

@@ -4,10 +4,10 @@ project-root/
 │   ├── admin_terminal.c
 │   ├── admin.c
 │   ├── admin.h
-│   ├── view.c
-│   ├── view.h
-│   ├── controller.c
-│   └── controller.h
+│   ├── view_admin.c
+│   ├── view_admin.h
+│   ├── controller_admin.c
+│   └── controller_admin.h
 ├── client/
 │   ├── app.c
 │   ├── app_terminal.c
@@ -23,6 +23,7 @@ project-root/
 │   ├── account.h
 │   ├── admin.c
 │   ├── admin.h
+│   ├── config.h
 │   ├── event.c
 │   ├── event.h
 │   ├── logger.c
@@ -42,6 +43,8 @@ project-root/
 │   └── events.txt
 ├── log/
 │   ├── client/
-│   └── server_log.txt
+│   ├── server_log.txt
+│   └── client/
+│       ├── user1.txt
+│       └── admin.txt
 ├── Makefile
-└── README.md

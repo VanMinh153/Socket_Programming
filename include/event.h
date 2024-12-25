@@ -1,30 +1,42 @@
 #ifndef EVENT_H
 #define EVENT_H
 
-#include <time.h>
-
-typedef enum {
-    PRIVATE,
-    PUBLIC
-} EventType;
+#define LEN_EVENT_NAME 50
+#define LEN_EVENT_DATE 10
+#define LEN_EVENT_ADDRESS 100
+#define LEN_EVENT_DETAILS 500
+#define MAX_MEMBERS 100
+#define MAX_REQUESTS 100
+#define MAX_EVENTS 1000
 
 typedef struct {
-    char name[100];
-    time_t timestamp;
-    char location[100];
-    EventType type;
-    char description[500];
-    char* invited_users[100];
-    char* participated_users[100];
-    int invited_count;
-    int participated_count;
-} Event;
+    int id;
+    char name[LEN_EVENT_NAME+1];
+    char date[LEN_EVENT_DATE+1];
+    char address[LEN_EVENT_ADDRESS+1];
+    int type;
+    char details[LEN_EVENT_DETAILS+1];
+    int owner;
+    int members[MAX_MEMBERS];
+    int requests[MAX_REQUESTS];
+} event_t;
 
-int handle_create_event(client_info* client, char* event_details);
-int list_events(client_info* client);
-int update_event(client_info* client, char* event_details);
-int delete_event(client_info* client, int event_id);
-int invite_to_event(const char* event_name, const char* inviter, const char* invited_user);
-int request_event_participation(const char* event_name, const char* requester);
+extern event_t events[MAX_EVENTS];
+extern int count_events;
+extern int gen_event_id;
+
+int create_event(char* name, char* address, int type, char* details);
+int update_event(int id, char* name, char* address, int type, char* details);
+int delete_event(int id);
+
+// Event management 2 functions
+int create_event_invites(char* username, int event_id);
+int take_back_event_invites(char* username, int event_id);
+int admin_accept_event_request(char* username, int event_id);
+int admin_reject_event_request(char* username, int event_id);
+int create_event_request(int event_id);
+int take_back_event_request(int event_id);
+int accept_event_request(char* username, int event_id);
+int reject_event_request(char* username, int event_id);
 
 #endif

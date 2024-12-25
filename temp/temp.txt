@@ -1,0 +1,166 @@
+// config.h
+#ifndef CONFIG_H
+#define CONFIG_H
+
+#define MAX_CLIENTS 1000
+#define LEN_MSG 1024
+#define SIZE_BUFFER_MSG LEN_MSG
+
+#define DB_ACCOUNTS "accounts.txt"
+#define DB_EVENTS "events.txt"
+
+#endif
+
+// account.h
+#ifndef ACCOUNT_H
+#define ACCOUNT_H
+
+#define LEN_USERNAME 30
+#define LEN_PASSWORD 30
+#define MAX_FRIENDS 100
+#define MAX_FRIEND_REQUESTS 50
+#define MAX_FRIEND_INVITES 50
+#define MAX_EVENT_JOINS 100
+#define MAX_EVENT_REQUESTS 50
+#define MAX_EVENT_INVITES 50
+#define MAX_ACCOUNTS 1000
+#define USERNAME_REGEX "^[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*$"
+
+typedef struct {
+    int id;
+    char username[LEN_USERNAME+1];
+    char password[LEN_PASSWORD+1];
+    int friends[MAX_FRIENDS];
+    int friend_requests[MAX_FRIEND_REQUESTS];
+    int friend_invites[MAX_FRIEND_INVITES];
+    int event_joins[MAX_EVENT_JOINS];
+    int event_requests[MAX_EVENT_REQUESTS];
+    int event_invites[MAX_EVENT_INVITES][2];
+} account_t;
+
+extern account_t accounts[MAX_ACCOUNTS];
+extern int count_accounts;
+extern int gen_account_id;
+
+int handle_login(char* username, char *password);
+int handle_signup(char* username, char *password);
+int handle_change_password(char* username, char* cur_password, char *new_password);
+int check_format_username(char* username);
+int check_format_password(char* password);
+int db_read_accounts();
+int db_save_accounts(account_t* accounts);
+
+// Friend management functions
+int create_friend_invites(char* username);
+int take_back_friend_invites(char* username);
+int accept_friend_request(char* username);
+int reject_friend_request(char* username);
+int unfriend(char* username);
+
+#endif
+
+// session.h
+#ifndef SESSION_H
+#define SESSION_H
+
+#include "config.h"
+#include "account.h"
+
+#define MAX_SESSIONS MAX_CLIENTS
+
+typedef struct {
+    char username[LEN_USERNAME+1];
+    bool logged;
+    int connfd;
+    char recv_buffer[SIZE_BUFFER_MSG];
+} session_t;
+
+extern session_t sessions[MAX_SESSIONS];
+extern int count_sessions;
+
+int create_session(int connfd);
+int delete_session(int connfd);
+
+#endif
+
+// event.h
+#ifndef EVENT_H
+#define EVENT_H
+
+#define LEN_EVENT_NAME 50
+#define LEN_EVENT_ADDRESS 100
+#define LEN_EVENT_DETAILS 500
+#define MAX_MEMBERS 100
+#define MAX_REQUESTS 100
+#define MAX_EVENTS 1000
+
+typedef struct {
+    int id;
+    char name[LEN_EVENT_NAME+1];
+    char date[LEN_EVENT_DATE+1];
+    char address[LEN_EVENT_ADDRESS+1];
+    int type;
+    char details[LEN_EVENT_DETAILS+1];
+    int owner;
+    int members[MAX_MEMBERS];
+    int requests[MAX_REQUESTS];
+} event_t;
+
+extern event_t events[MAX_EVENTS];
+extern int count_events;
+extern int gen_event_id;
+
+int create_event(char* name, char* address, int type, char* details);
+int update_event(int id, char* name, char* address, int type, char* details);
+int delete_event(int id);
+
+// Event management 2 functions
+int create_event_invites(char* username, int event_id);
+int take_back_event_invites(char* username, int event_id);
+int admin_accept_event_request(char* username, int event_id);
+int admin_reject_event_request(char* username, int event_id);
+int create_event_request(int event_id);
+int take_back_event_request(int event_id);
+int accept_event_request(char* username, int event_id);
+int reject_event_request(char* username, int event_id);
+
+#endif
+
+// logger.h
+#ifndef LOGGER_H
+#define LOGGER_H
+
+#define DB_LOG "log.txt"
+
+int log_activity(char* ip, int port, char* username, char* command, char* status);
+
+#endif
+
+// tcp_socket.h
+#ifndef TCP_SOCKET_H
+#define TCP_SOCKET_H
+
+#include "config.h"
+
+// Socket setup functions will be defined here
+// Functions for handling connections on ports 6000 and 6060
+
+#endif
+
+// utils.h
+#ifndef UTILS_H
+#define UTILS_H
+
+// Utility functions will be defined here
+// Helper functions for string manipulation, data validation, etc.
+
+#endif
+
+// admin.h 
+#ifndef ADMIN_H
+#define ADMIN_H
+
+// Admin functions will be defined here
+// Functions for viewing accounts, sessions, events, and logs
+
+#endif

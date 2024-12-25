@@ -1,4 +1,3 @@
-
 #include "tcp_socket.h"
 
 char G_msg[MSG_SIZE + 10] = {0};   // received message
