@@ -1,0 +1,115 @@
+# Event Management Application
+- Feature for administrator
+  View database
+  View log history
+________________________________________________________________________
+# Screen 1: Login page
+_________________________________________________
+|                                                |
+|         Event Management Application           |
+|________________________________________________|
+  Enter password:
+
+________________________________________________________________________
+# Screen 2: Homepage
+_________________________________________________
+|                                                |
+|         Event Management Application           |
+|________________________________________________|
+
+  1. View account list
+  2. View session list
+  3. View event list
+  4. View server log
+  5. View log by user
+  6. Logout
+  Choose feature [1-6]:
+
+________________________________________________________________________
+# Screen 2.1: View account list
+_________________________________________________
+|                                                |
+|         Event Management Application           |
+|________________________________________________|
+  Username | Password | Number Friend | Number Events Joined | Number Events Created |
+
+  1. Show details
+  Choose feature [1] ('q' to go back):
+
+________________________________________________________________________
+# Screen 2.1d: View account list - Show details
+_________________________________________________
+|                                                |
+|         Event Management Application           |
+|________________________________________________|
+  Username:
+  Password:
+  Friends:
+  Event joined:
+  Event created:
+  ***
+  Username:
+  ...
+  ('q' to go back):
+________________________________________________________________________
+# Screen 2.2: View session list
+_________________________________________________
+|                                                |
+|         Event Management Application           |
+|________________________________________________|
+  IP Address | Username | Login Time | Last username | Logout time
+
+  ('q' to go back):
+
+________________________________________________________________________
+# Screen 2.3: View event list
+_________________________________________________
+|                                                |
+|         Event Management Application           |
+|________________________________________________|
+  ID | Name | Date | Type | Number Members | Status | Owner | Number Requests | 
+
+  1. Show details
+  Choose feature [1] ('q' to go back):
+________________________________________________________________________
+# Screen 2.3d: View event list - Show details
+_________________________________________________
+|                                                |
+|         Event Management Application           |
+|________________________________________________|
+  ID:
+  Name:
+  Date:
+  Type:
+  Location:
+  Details:
+  Owner:
+  Status: 
+  Members:
+  Requested:
+  ('q' to go back):
+________________________________________________________________________
+# Screen 2.4: View server log
+_________________________________________________
+|                                                |
+|         Event Management Application           |
+|________________________________________________|
+  ...
+  ('q' to go back):
+________________________________________________________________________
+# Screen 2.5: View log by user
+_________________________________________________
+|                                                |
+|         Event Management Application           |
+|________________________________________________|
+  Enter username (q to go back):
+________________________________________________________________________
+# Screen 2.5: View log by user
+_________________________________________________
+|                                                |
+|         Event Management Application           |
+|________________________________________________|
+  Online status: 
+  Last login:
+  ...
+  (q to go back):

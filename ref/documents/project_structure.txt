@@ -1,12 +1,28 @@
 project-root/
+├── admin/
+│   ├── admin_app.c
+│   ├── admin_terminal.c
+│   ├── admin.c
+│   ├── admin.h
+│   ├── view.c
+│   ├── view.h
+│   ├── controller.c
+│   └── controller.h
 ├── client/
 │   ├── app.c
+│   ├── app_terminal.c
 │   ├── client.c
-│   └── client.h
+│   ├── client.h
+│   ├── view.c
+│   ├── view.h
+│   ├── controller.c
+│   └── controller.h
 ├── include/
-│   ├── config.h
-│   ├── database.c
-│   ├── database.h
+│   ├── include_all.h
+│   ├── account.c
+│   ├── account.h
+│   ├── admin.c
+│   ├── admin.h
 │   ├── event.c
 │   ├── event.h
 │   ├── logger.c
@@ -15,13 +31,17 @@ project-root/
 │   ├── session.h
 │   ├── tcp_socket.c
 │   ├── tcp_socket.h
-│   ├── user.c
-│   ├── user.h
 │   ├── utils.c
 │   └── utils.h
 ├── server/
 │   ├── main.c
 │   ├── server.c
 │   └── server.h
+├── database/
+│   ├── accounts.txt
+│   └── events.txt
+├── log/
+│   ├── client/
+│   └── server_log.txt
 ├── Makefile
 └── README.md

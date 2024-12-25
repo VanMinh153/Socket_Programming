@@ -1,13 +1,3 @@
-25/12/2024 11:00 PM
-________________________________________________________________________
-Process management tags:
-[not started]
-[in progress]
-[completed]
-[cancelled]
-[restarted]
-________________________________________________________________________
-
 [in process] #1 Socket Setup
   The application operates on port 6000 for general connections and port 6060 for admin connections
 [in process] Stream handling (Using delimiter "\r\n")

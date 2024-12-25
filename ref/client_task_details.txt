@@ -6,9 +6,7 @@
   Event management
     CRUD events, send a invitation, accept the invitation
     Request to join, accept the request
-- Feature for administrator
-  View database
-  View log history
+
 ________________________________________________________________________
 # Screen 1: Login page
 _________________________________________________
@@ -42,14 +40,14 @@ _________________________________________________
 |________________________________________________|
 
   1. Manage event you joined
-  2. Manage event you created
+  2. Manage event you created, add new event
   3. Manage your friend List
   4. Show other events
   5. Show other users
   6. Manage your account
   7. Notification center
   8. Logout
-  Choose feature [1-6]: 
+  Choose feature [1-8]: 
 
 ________________________________________________________________________
 # Screen 2.1: Manage event you joined
@@ -58,47 +56,86 @@ _________________________________________________
 |         Event Management Application           |
 |________________________________________________|
   My event list
-  id | name | date | type | number of members | status | your role |
+  id | name | date | type | number of members | status |
   ...
   1. Send invitation
   2. Show details
-  3. Go back
-  Choose feature [1-6]: 
+  Choose feature [1-2] ('q' to go back): 
 
 Demo:
-Choose feature [1-6]: 1
+  Choose feature: 1
+  Enter event id: 1
+  Enter username: user1
+  > Send invitation successfully!
+________________________________________________________________________
+# Screen 2.1d: Manage event you joined - Show details
+_________________________________________________
+|                                                |
+|         Event Management Application           |
+|________________________________________________|
+  ID: 
+  Name: 
+  Date:
+  Type:
+  Location:
+  Owner:
+  Details:
+  Status:
+  Members:
+  My invitation: 
+
+  1. Send invitation
+  2. Take back invitation
+  Choose feature [1-2] ('q' to go back): 
+
+________________________________________________________________________
+# Screen 2.2: Manage event you created
+_________________________________________________
+|                                                |
+|         Event Management Application           |
+|________________________________________________|
+  ID | Name | Date | Type | Number Members | Status | Number Requests |
+ 
+  1. Create event
+  2. Update event
+  3. Delete event
+  4. Send invitation
+  5. Manage one event
+  Choose feature [1-5] ('q' to go back): 
+
+Demo:
+  Choose feature [1-5]: 1
   Enter event name: event1
   Enter event date (dd/mm/yyyy): 31/12/2024
   Enter event type (0/Public, 1/Private): 0
   Enter event location: Ha Noi
   > Create event successfully
 ________________________________________________________________________
-# Screen 2.1.5: Manage event you created
+# Screen 2.2d: Manage event you created - Manage one event
 _________________________________________________
 |                                                |
 |         Event Management Application           |
-|________________________________________________|
-  id: 
-  name: 
-  date:
-  type:
-  location:
-  number of member:
-  member list:
-  status:
-  details:
-  Request to join | My invitation
-  ...
+|________________________________________________|  
+  ID: 
+  Name: 
+  Date:
+  Type:
+  Location:
+  Members:
+  Status:
+  Details:
+  Request to join: 
+  My invitation: 
+
   1. Accept request
   2. Reject request
   3. Send invitation
   4. Take back invitation
-  5. Go back
-  Choose feature [1-5]: 
+  Choose feature [1-4] ('q' to go back): 
 
 Demo:
-Choose feature [1-3]: 1
-  Enter username: user2
+Choose feature [1-4]: 1
+  Enter username: user1
   > Accept request successfully
 ________________________________________________________________________
 # Screen 2.4: Show other events
@@ -107,97 +144,131 @@ _________________________________________________
 |         Event Management Application           |
 |________________________________________________|
   My event list
-  id | name | date | type | number of members | status | owner |
-  ...
-  1. Create event
-  2. Update event
-  3. Delete event
-  4. Send invitation
-  5. Show details
-  6. Go back
-  Choose feature [1-6]: 
+  ID | Name | Date | Type | Number Member | Status | Owner |
+  My request: 
+
+  1. Create a request
+  2. Take back request
+  3. Show details
+  Choose feature [1-3] ('q' to go back): 
 ________________________________________________________________________
-# Screen 2.1.2: Show events details
+# Screen 2.4d: Show events details
 _________________________________________________
 |                                                |
 |         Event Management Application           |
 |________________________________________________|
-  id: 
-  name: 
-  date:
-  type:
-  location:
-  number of member:
-  member list:
-  status:
-  owner:
-  details:
+  ID: 
+  Name: 
+  Date:
+  Type:
+  Location:
+  Members:
+  Status:
+  Owner:
+  Details:
   
   You are a member | You are not a member
   My invitation:
 
-  1. Send invitation
-  2. Take back invitation
-  3. Go to details
-  4. Go back
-  Choose feature [1-5]: 
+  1. Create a request
+  2. Take back request
+  Choose feature [1-2] ('q' to go back): 
+________________________________________________________________________
+________________________________________________________________________
+# Screen 2.3: Manage your friend list
+_________________________________________________
+|                                                |
+|         Event Management Application           |
+|________________________________________________|
+  My friend | Number events joined | Number events created
+  ...
+  1. Show details
+  2. Unfriend
+  Choose feature [1-2] ('q' to go back): 
+________________________________________________________________________
+# Screen 2.3d: Manage your friend list
+_________________________________________________
+|                                                |
+|         Event Management Application           |
+|________________________________________________|
+  My friend:
+  Number events created:
+  ID | Name | Date | Type | Number Members | Status | Your role |
 
-________________________________________________________________________
-________________________________________________________________________
-# Screen 2.2: Account management
-_________________________________________________
-|                                                |
-|         Event Management Application           |
-|________________________________________________|
-  My friend | Friend request | My invitation
-  ...
-  1. Accept request
-  2. Reject request
-  3. Take back invitation
-  3. Unfriend
-  5. Go back
-  Choose feature [1-5]: 
+  Number events joined:
+  ID | Name | Date | Type | Number Members | Status | Your role |
 
-Demo:
-Choose feature [1-5]: 1
-  Enter username: user2
-  > Accept request successfully
+  Your request to join:
+
+  1. Send request
+  2. Take back request
+  Choose feature [1-2] ('q' to go back): 
 ________________________________________________________________________
-# Screen 2.4: Show all users
+# Screen 2.5: Show other users
+_________________________________________________
+|                                                |
+|         Event Management Application           |
+|________________________________________________|
+  Username | Friend request | My request |
+  ...
+  1. Accept request
+  2. Reject request
+  3. Send friend request
+  4. Take back friend request
+  Choose feature [1-4] ('q' to go back): 
+________________________________________________________________________
+# Screen 2.6: Account management
 _________________________________________________
 |                                                |
 |         Event Management Application           |
 |________________________________________________|
   Account management
-  Username | Friend request | My invitation
-  ...
-  1. Accept request
-  2. Reject request
-  3. Go back
-  Choose feature [1-7]: 
+
+  1. Change password
+  2. Change username
+  Choose feature [1-2] ('q' to go back): 
 ________________________________________________________________________
-# Screen 2.2: Account management
+# Screen 2.7: Notification center
 _________________________________________________
 |                                                |
 |         Event Management Application           |
 |________________________________________________|
-  Account management
-  My friend | Friend request | My invitation
-  ...
-  1. Accept request
-  2. Reject request
-  3. Go back
-  Choose feature [1-7]: 
+  Friend request | My friend request | Event request | Event invitation
+  
+  1. Accept friend request
+  2. Reject friend request
+  3. Take back my friend request
+  4. Accept event request
+  5. Reject event request
+  6. Take back event invitation
+  7. Show history notification
+  8. Show history activity
+  Choose feature [1-8] ('q' to go back): 
 ________________________________________________________________________
-# Screen 2.2: Account management
+# Screen 2.7h-n: Show history notification
 _________________________________________________
 |                                                |
 |         Event Management Application           |
 |________________________________________________|
-  Account management
-  My friend | Friend request | My invitation
+  Friend request:
+  Username | Date | Status
   ...
-  1. Accept request
-  2. Reject request
-  3. Go back
-  Choose feature [1-7]: 
+  My friend request:
+  Username | Date | Status
+  ...
+  Event request:
+  Event name | Date | Status
+  ...
+  Event invitation:
+  Event name | Date | Status
+  ...
+  ('q' to go back):
+________________________________________________________________________
+# Screen 2.7h-a: Show history activity
+_________________________________________________
+|                                                |
+|         Event Management Application           |
+|________________________________________________|
+  ...
+  ('q' to go back):
+________________________________________________________________________

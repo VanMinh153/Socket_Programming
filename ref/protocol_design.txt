@@ -1,0 +1,118 @@
+#2 Account management
+- Command
+  login 'username' 'password'
+  register 'username' 'password'
+  change_username 'cur_password' 'new_username'
+  change_password 'cur_password' 'new_password'
+  logout
+
+- Protocol
+  'all command'
+  > OK
+  !> NOT_FOUND_COMMAND
+  !> INVALID_OPTION
+  !> INCORRECT_PARAM
+  !> NOT_FOUND
+
+  login 'username' 'password'
+  !> INCORRECT_PASSWORD
+
+  register 'username' 'password'
+  !> EXISTED_USERNAME
+
+  change_username 'cur_password' 'new_username'
+  !> INCORRECT_PASSWORD
+
+  change_password 'cur_password' 'new_password'
+  !> INCORRECT_PASSWORD
+
+________________________________________________________________________
+#4 Friend List Management
+- Command
+  list -accounts
+  friend -list
+  friend -list_requests
+  friend -list_invites
+  friend -make 'username'
+  friend -take_back 'username'
+  friend -accept 'username'
+  friend -reject 'username'
+  friend -unfriend 'username'
+
+- Protocol
+  'all command'
+  > OK
+  !> NOT_FOUND_COMMAND
+  !> INVALID_OPTION
+  !> INCORRECT_PARAM
+  !> NOT_FOUND
+
+  list -accounts
+  > OK 'list of username in system'
+
+  friend -list
+  > OK 'friend list'
+
+  friend -list_requests
+  > OK 'make friend request list'
+  
+  friend -list_invites
+  > OK 'make friend request list'
+
+________________________________________________________________________
+#5 Event Management 1
+- Command
+  event -make 'event name' | 'address' | 'event type' | 'event details'
+  event -list
+  event -update 'event id' > 'event name' | 'address' | 'event type' | 'event details'
+  event -delete 'event id'
+
+- Protocol
+  'all command'
+  > OK
+  !> NOT_FOUND_COMMAND
+  !> INVALID_OPTION
+  !> INCORRECT_PARAM
+  !> NOT_FOUND
+  
+  event -make 'event name' | 'address' | 'event type' | 'event details'
+  event -list
+  > OK 'event list'
+
+  event -update 'event id' > 'event name' | 'address' | 'event type' | 'event details'
+  event -delete 'event id'
+
+________________________________________________________________________
+#6 Event Management 2
+- Command
+  event -invite 'username' 'event id'
+  event -take_back 'username' 'event id'
+  event -accept 'username' 'event id'
+  event -reject 'username' 'event id'
+  event2 -request 'event id'
+  event2 -take_back 'event id'
+  event2 -accept 'username' 'event id'
+  event2 -reject 'username' 'event id'
+
+- Protocol
+  'all command'
+  > OK
+  !> NOT_FOUND_COMMAND
+  !> INVALID_OPTION
+  !> INCORRECT_PARAM
+
+________________________________________________________________________
+#8 Administrator
+- Command
+  admin -list_accounts
+  admin -list_sessions
+  admin -list_events
+  admin -list_logs
+
+- Protocol
+  'all command'
+  > OK
+  !> NOT_FOUND_COMMAND
+  !> INVALID_OPTION
+  !> INCORRECT_PARAM
+  !> NOT_FOUND
