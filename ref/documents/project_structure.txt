@@ -38,13 +38,14 @@ project-root/
 │   ├── main.c
 │   ├── server.c
 │   └── server.h
-├── database/
-│   ├── accounts.txt
-│   └── events.txt
-├── log/
-│   ├── client/
-│   ├── server_log.txt
-│   └── client/
-│       ├── user1.txt
-│       └── admin.txt
-├── Makefile
+├── release/
+    ├── database/
+    │   ├── accounts.txt
+    │   └── events.txt
+    ├── log/
+    │   ├── client/
+    │   ├── server_log.txt
+    │   └── client/
+    │       ├── user1.txt
+    │       └── admin.txt
+└── Makefile
