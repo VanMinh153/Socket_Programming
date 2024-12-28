@@ -1,18 +1,8 @@
 {
 	"folders": [
 		{
-			"path": "../.."
+			"path": ".."
 		}
 	],
-	"settings": {
-		"files.associations": {
-			"*.ino": "cpp",
-			"*.c": "c",
-			"limits.h": "c",
-			"ctype.h": "c",
-			"socket.h": "c",
-			"random": "c",
-			"regex.h": "c"
-		}
-	}
+	"settings": {}
 }

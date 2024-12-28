@@ -1,2 +1,164 @@
-Update library_details.txt file with all library
-(file .h in this workspace)
+# Library "account.h"
+- define
+  LEN_USERNAME 30
+  LEN_PASSWORD 30
+  MAX_FRIENDS 100
+  MAX_FRIEND_REQUESTS 50
+  MAX_EVENT_JOINS 100
+  MAX_EVENT_REQUESTS 50
+
+  MAX_ACCOUNTS 1000
+  USERNAME_REGEX "^[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*$"
+
+- datatype
+typedef struct {
+  int id;
+  char username[LEN_USERNAME+1];
+  char password[LEN_PASSWORD+1];
+  int friends[MAX_FRIENDS];
+  int friend_requests[MAX_FRIEND_REQUESTS];
+  int event_joins[MAX_EVENT_JOINS];
+  int event_requests[MAX_EVENT_REQUESTS][2];
+} account_t;
+
+- global variable
+  account_t accounts[MAX_ACCOUNTS]
+  int count_accounts
+  int gen_account_id
+
+- functions
+int handle_login(char* username, char *password);
+int handle_signup(char* username, char *password);
+int handle_change_password(char* username, char* cur_password, char *new_password);
+int check_format_username(char* username);
+int check_format_password(char* password);
+int db_read_accounts();
+int db_save_accounts();
+static int find_account_by_username(const char* username);
+
+int create_friend_invites(char* username);
+int take_back_friend_invites(char* username);
+int accept_friend_request(char* username);
+int reject_friend_request(char* username);
+int unfriend(char* username);
+
+________________________________________________________________________
+# Library "admin.h"
+- functions
+// Admin functions will be defined here
+// Functions for viewing accounts, sessions, events, and logs
+
+________________________________________________________________________
+# Library "config.h"
+- define
+  SERVER_PORT 5555
+  MAX_CLIENTS 1000
+  LEN_MSG 1024
+  SIZE_BUFFER_MSG LEN_MSG
+  DB_ACCOUNTS "database/accounts.txt"
+  DB_EVENTS "database/events.txt"
+
+________________________________________________________________________
+# Library "event.h"
+- define
+  LEN_EVENT_NAME 50
+  LEN_EVENT_DATE 10
+  LEN_EVENT_ADDRESS 100
+  LEN_EVENT_DETAILS 500
+  MAX_MEMBERS 100
+  MAX_REQUESTS 100
+  MAX_EVENTS 1000
+
+- datatype
+typedef struct {
+  int id;
+  char name[LEN_EVENT_NAME+1];
+  char date[LEN_EVENT_DATE+1];
+  char address[LEN_EVENT_ADDRESS+1];
+  int type;
+  char details[LEN_EVENT_DETAILS+1];
+  int owner;
+  int members[MAX_MEMBERS];
+  int requests[MAX_REQUESTS];
+} event_t;
+
+- global variable
+  event_t events[MAX_EVENTS]
+  int count_events
+  int gen_event_id
+
+- functions
+int create_event(char* name, char* address, int type, char* details);
+int update_event(int id, char* name, char* address, int type, char* details);
+int delete_event(int id);
+
+int create_event_invites(char* username, int event_id);
+int take_back_event_invites(char* username, int event_id);
+int admin_accept_event_request(char* username, int event_id);
+int admin_reject_event_request(char* username, int event_id);
+int create_event_request(int event_id);
+int take_back_event_request(int event_id);
+int accept_event_request(char* username, int event_id);
+int reject_event_request(char* username, int event_id);
+
+________________________________________________________________________
+# Library "include_all.h"
+- include
+  account.h
+  admin.h
+  event.h
+  tcp_socket.h
+  session.h
+  logger.h
+  config.h
+  utils.h
+
+________________________________________________________________________
+# Library "logger.h"
+- define
+  DB_LOG "log.txt"
+
+- functions
+int log_activity(char* ip, int port, char* username, char* command, char* status);
+
+________________________________________________________________________
+# Library "session.h"
+- define
+  MAX_SESSIONS MAX_CLIENTS
+
+- datatype
+typedef struct {
+  char username[LEN_USERNAME+1];
+  bool logged;
+  int connfd;
+  char recv_buffer[SIZE_BUFFER_MSG];
+} session_t;
+
+- global variable
+  session_t sessions[MAX_SESSIONS]
+  int count_sessions
+
+- functions
+int create_session(int connfd);
+int delete_session(int connfd);
+
+________________________________________________________________________
+# Library "tcp_socket.h"
+- define
+  MSG_SIZE 2048
+  DELIMITER "||"
+  DELIMITER_LEN 2
+
+- functions
+int send__(int fd, void *buf, size_t n, int flags);
+int recv__(int fd, void *buf, size_t n, int flags);
+int send_msg(int fd, char *msg);
+int recv_msg(int fd, char *buf, char *msg_buf);
+int getmsg(char *buf, char *msg_buf);
+int getmsg_2(char *buf, char *recv_buf, char *msg_buf);
+
+________________________________________________________________________
+# Library "utils.h"
+- functions
+// Utility functions will be defined here
+// Helper functions for string manipulation, data validation, etc.

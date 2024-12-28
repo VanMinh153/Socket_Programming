@@ -6,11 +6,7 @@
 // run: ./server <PORT> <ADMIN_PORT>
 int main(int argc, char *argv[]) {
   int PORT = SERVER_PORT;
-  int ADMIN_PORT = ADMIN_SERVER_PORT;
-  if (argc == 3) {
-    PORT = atoi(argv[1]);
-    ADMIN_PORT = atoi(argv[2]);
-  } else if (argc == 2) {
+  if (argc == 2) {
     PORT = atoi(argv[1]);
   }
   memset(accounts, 0, sizeof(accounts));
@@ -36,12 +32,11 @@ int main(int argc, char *argv[]) {
     perror("Error binding socket");
     return 1;
   }
-// init admin server
 
   listen(server_socket, MAX_CLIENTS);
   printf("Server running on port %d\n", PORT);
 
-  load_accounts();
+  db_read_accounts();
 
   while (1) {
     client_socket = accept(server_socket, (struct sockaddr *)&client_addr,
