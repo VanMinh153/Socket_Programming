@@ -35,6 +35,8 @@ int check_format_username(char* username);
 int check_format_password(char* password);
 int db_read_accounts();
 int db_save_accounts(account_t* accounts);
+static int find_account_by_username(const char* username);
+
 
 // Friend management functions
 int create_friend_invites(char* username);

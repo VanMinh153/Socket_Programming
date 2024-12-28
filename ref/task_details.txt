@@ -25,7 +25,7 @@ Library
 ________________________________________________________________________
 // Below are the list of tasks
 #1 Socket Setup
-- The application operates on port 6000 for general connections and port 6060 for admin connections
+- The application operates on port 5050 for general connections and port 5051 for admin connections
 1.1 Stream handling (Using delimiter "\r\n")
 1.2 Installing IO multiplexing mechanism on the server (using poll() )
 1.3 Installing multithread mechanism
@@ -34,7 +34,7 @@ ________________________________________________________________________
 - Creating a new thread to handle requests from admin and closing this thread when admin disconnects
 close the session command: 'exit'
 ________________________________________________________________________
-Library config.h
+Library "config.h"
 - define
   MAX_CLIENTS 1000
   LEN_MSG 1024
@@ -139,7 +139,7 @@ Pseudocode {
   change_password 'cur_password' 'new_password'
   !> INCORRECT_PASSWORD
 
-Library 'account.h'
+Library "account.h"
 - define
   LEN_USERNAME 30
   LEN_PASSWORD 30
@@ -212,7 +212,7 @@ struct session_t {
   char recv_buffer[SIZE_BUFFER_MSG];
 }
 
-Library
+Library "session.h"
 - define
   MAX_SESSIONS MAX_CLIENTS
 
@@ -282,7 +282,7 @@ ref: struct account_t {
   friend -list_invites
   > OK 'make friend request list'
 
-Library
+Library "account.h"
 - function
 int create_friend_invites(char* username)
   Brief: save invited_account.id to cur_account.invites
@@ -344,7 +344,7 @@ id | name | address | details | owner | members | requests
   event -update 'event id' > 'event name' | 'address' | 'event type' | 'event details'
   event -delete 'event id'
 
-Library
+Library "event.h"
 - define
   LEN_EVENT_NAME 50
   LEN_EVENT_DATE 10
@@ -401,7 +401,7 @@ ________________________________________________________________________
   !> INVALID_OPTION
   !> INCORRECT_PARAM
 
-Library
+Library "event.h"
 - function
 // for event's members
 int create_event_invites(char* username, int event_id)
@@ -426,7 +426,7 @@ ________________________________________________________________________
 - Log format
 time | ip | port | username | command | status
 
-Library 
+Library "logger.h"
 - define
   DB_LOG "log.txt"
 - function
@@ -459,6 +459,6 @@ ________________________________________________________________________
   !> INCORRECT_PARAM
   !> NOT_FOUND
 
-Library
+Library "admin.h"
 - function
 

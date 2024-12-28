@@ -3,6 +3,8 @@
 
 #include "config.h"
 #include "account.h"
+#include <stdbool.h>
+
 
 #define MAX_SESSIONS MAX_CLIENTS
 

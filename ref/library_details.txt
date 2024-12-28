@@ -1,0 +1,2 @@
+Update library_details.txt file with all library
+(file .h in this workspace)

@@ -13,7 +13,9 @@
 			"ctype.h": "c",
 			"socket.h": "c",
 			"random": "c",
-			"regex.h": "c"
+			"regex.h": "c",
+			"stdlib.h": "c",
+			"config.h": "c"
 		}
 	}
 }

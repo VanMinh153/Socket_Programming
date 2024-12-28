@@ -1,0 +1,52 @@
+project-root/
+├── admin/
+│   ├── admin_app.c
+│   ├── admin_terminal.c
+│   ├── include/
+│       ├── admin_lib.c
+│       ├── admin_lib.h
+│       ├── controller_admin.c
+│       ├── controller_admin.h
+│       ├── view_admin.c
+│       └── view_admin.h
+├── client/
+│   ├── app.c
+│   ├── app_terminal.c
+│   ├── include/
+│       ├── client.c
+│       ├── client.h
+│       ├── controller.c
+│       ├── controller.h
+│       ├── view.c
+│       ├── view.h
+├── include/
+│   ├── account.c
+│   ├── account.h
+│   ├── admin.c
+│   ├── admin.h
+│   ├── config.h
+│   ├── event.c
+│   ├── event.h
+│   ├── include_all.h
+│   ├── logger.c
+│   ├── logger.h
+│   ├── session.c
+│   ├── session.h
+│   ├── tcp_socket.c
+│   ├── tcp_socket.h
+│   ├── utils.c
+│   └── utils.h
+├── server/
+│   ├── main.c
+│   ├── server.c
+│   └── server.h
+├── release/
+│   ├── database/
+│   │   ├── accounts.txt
+│   │   └── events.txt
+│   ├── log/
+│   │   ├── client/
+│   │   │   ├── user1.txt
+│   │   │   └── admin.txt
+│   │   └── server_log.txt
+└── Makefile
