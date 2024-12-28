@@ -1,0 +1,333 @@
+#include <stdio.h>
+#include <string.h>
+#include "account.h"
+
+int db_read_accounts() {
+  FILE* fp = fopen(DB_ACCOUNTS, "r");
+  if (!fp) return 1;
+
+  char line[1024];
+  count_accounts = 0;
+  gen_account_id = 1;
+
+  while (fgets(line, sizeof(line), fp)) {
+    char* token;
+    int i = 0;
+    
+    // Parse ID
+    token = strtok(line, "|");
+    if (!token) continue;
+    accounts[count_accounts].id = atoi(token);
+    if (accounts[count_accounts].id >= gen_account_id) {
+      gen_account_id = accounts[count_accounts].id + 1;
+    }
+
+    // Parse username
+    token = strtok(NULL, "|");
+    if (!token) continue;
+    strncpy(accounts[count_accounts].username, token + 1, LEN_USERNAME);
+    accounts[count_accounts].username[strcspn(accounts[count_accounts].username, " ")] = 0;
+
+    // Parse password
+    token = strtok(NULL, "|");
+    if (!token) continue;
+    strncpy(accounts[count_accounts].password, token + 1, LEN_PASSWORD);
+    accounts[count_accounts].password[strcspn(accounts[count_accounts].password, " ")] = 0;
+
+    // Parse friends
+    token = strtok(NULL, "|");
+    if (!token) continue;
+    char* friend_id;
+    i = 0;
+    friend_id = strtok(token + 1, " ");
+    while (friend_id && i < MAX_FRIENDS) {
+      accounts[count_accounts].friends[i++] = atoi(friend_id);
+      friend_id = strtok(NULL, " ");
+    }
+    while (i < MAX_FRIENDS) accounts[count_accounts].friends[i++] = 0;
+
+    // Parse friend requests
+    token = strtok(NULL, "|");
+    if (!token) continue;
+    i = 0;
+    friend_id = strtok(token + 1, " ");
+    while (friend_id && i < MAX_FRIEND_REQUESTS) {
+      accounts[count_accounts].friend_requests[i++] = atoi(friend_id);
+      friend_id = strtok(NULL, " ");
+    }
+    while (i < MAX_FRIEND_REQUESTS) accounts[count_accounts].friend_requests[i++] = 0;
+
+    // Parse event joins
+    token = strtok(NULL, "|");
+    if (!token) continue;
+    i = 0;
+    char* event_id = strtok(token + 1, " ");
+    while (event_id && i < MAX_EVENT_JOINS) {
+      accounts[count_accounts].event_joins[i++] = atoi(event_id);
+      event_id = strtok(NULL, " ");
+    }
+    while (i < MAX_EVENT_JOINS) accounts[count_accounts].event_joins[i++] = 0;
+
+    // Parse event requests
+    token = strtok(NULL, "|");
+    if (!token) continue;
+    i = 0;
+    char* request = strtok(token + 1, " ");
+    while (request && i < MAX_EVENT_REQUESTS) {
+      char* event_id = strchr(request, ',');
+      if (event_id) {
+        *event_id = '\0';
+        event_id++;
+        accounts[count_accounts].event_requests[i][0] = atoi(request);
+        accounts[count_accounts].event_requests[i][1] = atoi(event_id);
+        i++;
+      }
+      request = strtok(NULL, " ");
+    }
+    while (i < MAX_EVENT_REQUESTS) {
+      accounts[count_accounts].event_requests[i][0] = 0;
+      accounts[count_accounts].event_requests[i][1] = 0;
+      i++;
+    }
+
+    count_accounts++;
+  }
+
+  fclose(fp);
+  return 0;
+}
+
+int create_friend_invites(char* username) {
+  // Find the target account
+  int target_idx = -1;
+  int cur_idx = -1;
+  
+  // Find current user and target user indices
+  for (int i = 0; i < count_accounts; i++) {
+    if (strcmp(accounts[i].username, username) == 0) {
+      target_idx = i;
+    }
+  }
+  
+  for (int i = 0; i < MAX_SESSIONS; i++) {
+    if (sessions[i].logged) {
+      for (int j = 0; j < count_accounts; j++) {
+        if (strcmp(accounts[j].username, sessions[i].username) == 0) {
+          cur_idx = j;
+          break;
+        }
+      }
+      break;
+    }
+  }
+  
+  if (target_idx == -1 || cur_idx == -1) return 1;
+
+  // Check if already friends
+  for (int i = 0; i < MAX_FRIENDS; i++) {
+    if (accounts[cur_idx].friends[i] == accounts[target_idx].id) {
+      return 2;
+    }
+  }
+
+  // Add request to target's friend requests
+  for (int i = 0; i < MAX_FRIEND_REQUESTS; i++) {
+    if (accounts[target_idx].friend_requests[i] == 0) {
+      accounts[target_idx].friend_requests[i] = accounts[cur_idx].id;
+      return 0;
+    }
+  }
+
+  return 3; // No space for new request
+}
+
+int take_back_friend_invites(char* username) {
+  int target_idx = -1;
+  int cur_idx = -1;
+  
+  // Find indices
+  for (int i = 0; i < count_accounts; i++) {
+    if (strcmp(accounts[i].username, username) == 0) {
+      target_idx = i;
+    }
+  }
+  
+  for (int i = 0; i < MAX_SESSIONS; i++) {
+    if (sessions[i].logged) {
+      for (int j = 0; j < count_accounts; j++) {
+        if (strcmp(accounts[j].username, sessions[i].username) == 0) {
+          cur_idx = j;
+          break;
+        }
+      }
+      break;
+    }
+  }
+  
+  if (target_idx == -1 || cur_idx == -1) return 1;
+
+  // Remove request from target's friend requests
+  for (int i = 0; i < MAX_FRIEND_REQUESTS; i++) {
+    if (accounts[target_idx].friend_requests[i] == accounts[cur_idx].id) {
+      // Shift remaining requests
+      for (int j = i; j < MAX_FRIEND_REQUESTS - 1; j++) {
+        accounts[target_idx].friend_requests[j] = accounts[target_idx].friend_requests[j + 1];
+      }
+      accounts[target_idx].friend_requests[MAX_FRIEND_REQUESTS - 1] = 0;
+      return 0;
+    }
+  }
+
+  return 2; // Request not found
+}
+
+int accept_friend_request(char* username) {
+  int requester_idx = -1;
+  int cur_idx = -1;
+  
+  // Find indices
+  for (int i = 0; i < count_accounts; i++) {
+    if (strcmp(accounts[i].username, username) == 0) {
+      requester_idx = i;
+    }
+  }
+  
+  for (int i = 0; i < MAX_SESSIONS; i++) {
+    if (sessions[i].logged) {
+      for (int j = 0; j < count_accounts; j++) {
+        if (strcmp(accounts[j].username, sessions[i].username) == 0) {
+          cur_idx = j;
+          break;
+        }
+      }
+      break;
+    }
+  }
+  
+  if (requester_idx == -1 || cur_idx == -1) return 1;
+
+  // Verify request exists
+  int request_found = 0;
+  for (int i = 0; i < MAX_FRIEND_REQUESTS; i++) {
+    if (accounts[cur_idx].friend_requests[i] == accounts[requester_idx].id) {
+      request_found = 1;
+      
+      // Remove request
+      for (int j = i; j < MAX_FRIEND_REQUESTS - 1; j++) {
+        accounts[cur_idx].friend_requests[j] = accounts[cur_idx].friend_requests[j + 1];
+      }
+      accounts[cur_idx].friend_requests[MAX_FRIEND_REQUESTS - 1] = 0;
+      break;
+    }
+  }
+
+  if (!request_found) return 2;
+
+  // Add to friends lists
+  int added_to_cur = 0, added_to_req = 0;
+  
+  for (int i = 0; i < MAX_FRIENDS; i++) {
+    if (accounts[cur_idx].friends[i] == 0 && !added_to_cur) {
+      accounts[cur_idx].friends[i] = accounts[requester_idx].id;
+      added_to_cur = 1;
+    }
+    if (accounts[requester_idx].friends[i] == 0 && !added_to_req) {
+      accounts[requester_idx].friends[i] = accounts[cur_idx].id;
+      added_to_req = 1;
+    }
+    if (added_to_cur && added_to_req) break;
+  }
+
+  return 0;
+}
+
+int reject_friend_request(char* username) {
+  int requester_idx = -1;
+  int cur_idx = -1;
+  
+  // Find indices
+  for (int i = 0; i < count_accounts; i++) {
+    if (strcmp(accounts[i].username, username) == 0) {
+      requester_idx = i;
+    }
+  }
+  
+  for (int i = 0; i < MAX_SESSIONS; i++) {
+    if (sessions[i].logged) {
+      for (int j = 0; j < count_accounts; j++) {
+        if (strcmp(accounts[j].username, sessions[i].username) == 0) {
+          cur_idx = j;
+          break;
+        }
+      }
+      break;
+    }
+  }
+  
+  if (requester_idx == -1 || cur_idx == -1) return 1;
+
+  // Remove request
+  for (int i = 0; i < MAX_FRIEND_REQUESTS; i++) {
+    if (accounts[cur_idx].friend_requests[i] == accounts[requester_idx].id) {
+      // Shift remaining requests
+      for (int j = i; j < MAX_FRIEND_REQUESTS - 1; j++) {
+        accounts[cur_idx].friend_requests[j] = accounts[cur_idx].friend_requests[j + 1];
+      }
+      accounts[cur_idx].friend_requests[MAX_FRIEND_REQUESTS - 1] = 0;
+      return 0;
+    }
+  }
+
+  return 2; // Request not found
+}
+
+int unfriend(char* username) {
+  int target_idx = -1;
+  int cur_idx = -1;
+  
+  // Find indices
+  for (int i = 0; i < count_accounts; i++) {
+    if (strcmp(accounts[i].username, username) == 0) {
+      target_idx = i;
+    }
+  }
+  
+  for (int i = 0; i < MAX_SESSIONS; i++) {
+    if (sessions[i].logged) {
+      for (int j = 0; j < count_accounts; j++) {
+        if (strcmp(accounts[j].username, sessions[i].username) == 0) {
+          cur_idx = j;
+          break;
+        }
+      }
+      break;
+    }
+  }
+  
+  if (target_idx == -1 || cur_idx == -1) return 1;
+
+  // Remove from both friends lists
+  int removed_from_cur = 0, removed_from_target = 0;
+  
+  for (int i = 0; i < MAX_FRIENDS; i++) {
+    if (accounts[cur_idx].friends[i] == accounts[target_idx].id) {
+      // Shift remaining friends
+      for (int j = i; j < MAX_FRIENDS - 1; j++) {
+        accounts[cur_idx].friends[j] = accounts[cur_idx].friends[j + 1];
+      }
+      accounts[cur_idx].friends[MAX_FRIENDS - 1] = 0;
+      removed_from_cur = 1;
+    }
+    if (accounts[target_idx].friends[i] == accounts[cur_idx].id) {
+      // Shift remaining friends
+      for (int j = i; j < MAX_FRIENDS - 1; j++) {
+        accounts[target_idx].friends[j] = accounts[target_idx].friends[j + 1];
+      }
+      accounts[target_idx].friends[MAX_FRIENDS - 1] = 0;
+      removed_from_target = 1;
+    }
+    if (removed_from_cur && removed_from_target) break;
+  }
+
+  return removed_from_cur && removed_from_target ? 0 : 2;
+}

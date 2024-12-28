@@ -61,7 +61,7 @@ struct account_t {
   int event_requests[MAX_EVENT_REQUESTS][2];
 }
 // any integer element equal 0 mean that is null
-// event_requests[i][0] = inviter_id
+// event_requests[i][0] = requester_id
 // event_requests[i][1] = event_id
 
 Username may only contain alphanumeric characters or single hyphens `-`, and cannot begin or end with a hyphen.

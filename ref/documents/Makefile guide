@@ -1,0 +1,50 @@
+Makefile guide:
+% is a wildcard character that matches any string, including the empty string.
+$@ is the target of the rule.
+$< is the first prerequisite of the rule.
+$^ is the list of all prerequisites of the rule.
+$? is the list of all prerequisites that are newer than the target.
+$* is the stem with which an implicit rule matches.
+$+ is the list of all the prerequisites, with no duplicates.
+
+SRC_INCLUDE = $(wildcard include/*.c)
+OBJ_INCLUDE = $(SRC_INCLUDE:.c=.o)
+~ $(patsubst %.c, %.o, $(wildcard include/*.c))
+
+OBJ_DIR = $(dir $(OBJ_INCLUDE))
+OBJ_FILENAME = $(basename $(notdir $(OBJ_INCLUDE)))
+
+INCLUDE_DIRS := $(shell find ./ -type d -name "include")
+INCLUDE_FLAGS := $(addprefix -I, $(INCLUDE_DIRS))
+CFLAGS = -Wall -Wextra INCLUDE_FLAGS
+~ gcc $(find . -type d -exec printf '-I%s ' {} \;)
+
+
+# ______________________________________________________________________
+# Example:
+CC = gcc
+CFLAGS = -Wall -Wextra -I./include
+
+TARGET = server client
+OBJ_SERVER = $(patsubst %.c, %.o, $(wildcard server/include/*.c))
+OBJ_CLIENT = $(patsubst %.c, %.o, $(wildcard client/include/*.c))
+OBJ_INCLUDE = $(patsubst %.c, %.o, $(wildcard include/*.c))
+OBJ_ALL = $(OBJ_SERVER) $(OBJ_CLIENT) $(OBJ_INCLUDE)
+TARGET_F = $(patsubst %, release/%, $(TARGET))
+# ______________________________________________________________________
+all: $(TARGET)
+
+server: server/main.o $(OBJ_SERVER) $(OBJ_INCLUDE)
+	$(CC) $(CFLAGS) -o release/$@ $(patsubst %, obj/%, $(notdir $^))
+
+client: client/app.o $(OBJ_CLIENT) $(OBJ_INCLUDE)
+	$(CC) $(CFLAGS) -o release/$@ $(patsubst %, obj/%, $(notdir $^))
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o obj/$(notdir $@)
+# ______________________________________________________________________
+.PHONY: clean clean_obj
+clean:
+	find . -name "*.o" -type f -delete
+# rm -f $(OBJ_ALL) $(TARGET_F)
+

@@ -8,29 +8,6 @@ Process management tags:
 [restarted]
 ________________________________________________________________________
 
-[in process] #1 Socket Setup
-  The application operates on port 6000 for general connections and port 6060 for admin connections
-[in process] Stream handling (Using delimiter "\r\n")
-[in process] Installing IO multiplexing mechanism on the server (using poll() )
-[in process] Installing multithread mechanism
-  Using 1 thread to manage socket connection
-  Using 1 thread to handle requests from clients
-  Creating a new thread to handle requests from admin and closing this thread when admin disconnects
-
-Features:
-  Stream handling with delimiter "\r\n"
-  IO multiplexing with poll()
-  Multithread management
-
-Commands:
-  close the session command: 'exit'
-
-Functions:
-  Defined in config.h:
-    MAX_CLIENTS, LEN_MSG, SIZE_BUFFER_MSG
-    DB_ACCOUNTS, DB_EVENTS
-________________________________________________________________________
-
 [in process] #2 Account Management
 Features:
   Login

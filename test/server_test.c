@@ -1,4 +1,5 @@
-#include "include_all.h"
+#include "config.h"
+#include "tcp_socket.h"
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <pthread.h>
@@ -8,25 +9,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-
-int init_server(int port) {
-  int server_fd;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#define MAX_CLIENTS 10
+// #define MAX_CLIENTS 10
 #define MAX_USERNAME 50
 #define MAX_PASSWORD 50
 #define BUFFER_SIZE 1024
@@ -181,4 +164,68 @@ void *handle_client(void *arg) { // Tested
     }
   }
   return NULL;
+}
+//________________________________________________________________________________________
+int main(int argc, char *argv[]) {
+  if (argc != 2) {
+    printf("Usage: %s <PORT>\n", argv[0]);
+    return 1;
+  }
+  memset(accounts, 0, sizeof(accounts));
+  memset(sessions, 0, sizeof(sessions));
+
+  load_accounts();
+
+  int server_socket, client_socket;
+  struct sockaddr_in server_addr, client_addr;
+  socklen_t client_addr_len = sizeof(client_addr);
+  int port = atoi(argv[1]);
+
+  // Create socket
+  server_socket = socket(AF_INET, SOCK_STREAM, 0);
+  if (server_socket < 0) {
+    perror("Error creating socket");
+    return 1;
+  }
+
+  server_addr.sin_family = AF_INET;
+  server_addr.sin_addr.s_addr = INADDR_ANY;
+  server_addr.sin_port = htons(port);
+
+  // Bind
+  if (bind(server_socket, (struct sockaddr *)&server_addr,
+           sizeof(server_addr)) < 0) {
+    perror("Error binding socket");
+    return 1;
+  }
+
+  // Listen
+  listen(server_socket, MAX_CLIENTS);
+  printf("Server running on port %d\n", port);
+
+  while (1) {
+    client_socket = accept(server_socket, (struct sockaddr *)&client_addr,
+                           &client_addr_len);
+    if (client_socket < 0) {
+      perror("Error accepting connection");
+      continue;
+    }
+
+    if (session_count >= MAX_CLIENTS) {
+      send(client_socket, "MAX CLIENTS REACHED");
+      close(client_socket);
+    }
+
+    sessions[session_count].socket = client_socket;
+    sessions[session_count].is_authenticated = 0;
+    session_count++;
+
+    pthread_t thread_id;
+    pthread_create(&thread_id, NULL, handle_client,
+                   &sessions[session_count - 1]);
+    pthread_detach(thread_id);
+  }
+
+  close(server_socket);
+  return 0;
 }

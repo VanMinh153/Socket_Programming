@@ -15,7 +15,8 @@
 			"random": "c",
 			"regex.h": "c",
 			"stdlib.h": "c",
-			"config.h": "c"
+			"config.h": "c",
+			"string.h": "c"
 		}
 	}
 }
