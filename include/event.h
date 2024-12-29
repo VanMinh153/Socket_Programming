@@ -1,5 +1,6 @@
 #ifndef EVENT_H
 #define EVENT_H
+#include "config.h"
 
 #define LEN_EVENT_NAME 50
 #define LEN_EVENT_DATE 10
@@ -8,6 +9,11 @@
 #define MAX_MEMBERS 100
 #define MAX_REQUESTS 100
 #define MAX_EVENTS 1000
+
+// For testing
+#ifdef TEST
+#define TEST_db_read_events
+#endif
 
 typedef struct {
     int id;
@@ -28,6 +34,9 @@ extern int gen_event_id;
 int create_event(char* name, char* address, int type, char* details);
 int update_event(int id, char* name, char* address, int type, char* details);
 int delete_event(int id);
+int db_read_events(); // Tested
+int db_save_events(); // Tested
+int db_save_events0(); // Tested
 
 // Event management 2 functions
 int create_event_invites(char* username, int event_id);

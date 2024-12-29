@@ -1,5 +1,6 @@
 #ifndef ACCOUNT_H
 #define ACCOUNT_H
+#include "config.h"
 
 #define LEN_USERNAME 30
 #define LEN_PASSWORD 30
@@ -11,9 +12,9 @@
 #define USERNAME_REGEX "^[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*$"
 
 // For testing
+#ifdef TEST
 #define TEST_db_read_accounts
-#define TEST_db_save_accounts
-
+#endif
 
 typedef struct {
     int id;
@@ -32,11 +33,11 @@ extern int gen_account_id;
 int handle_login(char* username, char *password);
 int handle_signup(char* username, char *password);
 int handle_change_password(char* username, char* cur_password, char *new_password);
-int check_format_username(char* username); // Tested
-int check_format_password(char* password);
+int check_format_username(char* username); // Tested 
+int check_format_password(char* password); // Tested
 int db_read_accounts(); // Tested
-int db_save_accounts0(); // Tested
 int db_save_accounts(); // Tested
+int db_save_accounts0(); // Tested
 int find_account_by_username(const char* username);
 
 

@@ -4,34 +4,15 @@
 #include <ctype.h>
 #include <unistd.h>
 
-char* skip_space(char *str) {
-  while (*str == ' ')
-    str++;
-  return str;
-}
-
-char* skip_2space(char *str) {
-  while (*str == ' ')
-    str++;
-  while (*str != ' ')
-    str++;
-  while (*str == ' ')
-    str++;
-  return str;
-}
-
 int main() {
   // char str[] = "   123   456";
-  char str[] = "   abc   def   ";
-  char *ptr = str;
-  char str2[21] = {0};
-
-  printf("~%s~\n", ptr);
-  ptr = skip_space(str);
-  printf("~%s~\n", ptr);
-
-  ptr = skip_2space(str);
-  printf("~%s~\n", ptr);
-  
+  char str[] = "   abc   def";
+  int int_arr[] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+  void *ptr = int_arr;
+  // ~ char *ptr = (char*) int_arr;
+  ptr = ptr + 3;
+  for (int i = 0; i < 9; i++) {
+    printf("%d ", *((int*) ptr + i));
+  }  
   return 0;
 }

@@ -367,6 +367,12 @@ int update_event(int id, char* name, char* address, int type, char* details)
 
 int delete_event(int id)
   Brief: remove event 'id' from global variable events
+
+int db_read_events()
+  Brief: read events from database to global variable events
+
+int db_save_events()
+  Brief: save events from global variable events to database
 ________________________________________________________________________
 #6 Event management 2
 - Feature

@@ -5,14 +5,11 @@
 #include "account.h"
 #include <stdbool.h>
 
-
-#define MAX_SESSIONS MAX_CLIENTS
-
 typedef struct {
-    char username[LEN_USERNAME+1];
+    char username[LEN_USERNAME + 1];
     bool logged;
     int connfd;
-    char recv_buffer[SIZE_BUFFER_MSG];
+    char recv_buffer[MSG_BUFFER_SIZE];
 } session_t;
 
 extern session_t sessions[MAX_SESSIONS];

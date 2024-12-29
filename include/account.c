@@ -1,5 +1,4 @@
 #include "account.h"
-#include "config.h"
 #include "session.h"
 #include <regex.h>
 
@@ -126,23 +125,36 @@ int db_read_accounts() {
     token = strtok(NULL, "|");
     if (token == NULL)
       continue;
-    sscanf(token, "%s", accounts[count_accounts].username);
-    if (check_format_username(accounts[count_accounts].username) == 1) {
-      perror("Invalid username format");
+    token = trim_space(token);
+    if (strlen(token) > LEN_USERNAME) {
+      fprintf(stderr, "Username too long: \"%s\"\n", token);
       fclose(fp);
       exit(1);
     }
+    if (check_format_username(token) == 1) {
+      fprintf(stderr, "Invalid username format: \"%s\"\n", token);
+      fclose(fp);
+      exit(1);
+    }
+    memcpy(accounts[count_accounts].username, token, strlen(token) + 1);
+    
 
     // Parse password
     token = strtok(NULL, "|");
     if (token == NULL)
       continue;
-    sscanf(token, "%s", accounts[count_accounts].password);
-    if (check_format_password(accounts[count_accounts].password) == 1) {
-      perror("Invalid password format");
+    token = trim_space(token);
+    if (strlen(token) > LEN_PASSWORD) {
+      fprintf(stderr, "Password too long: \"%s\"\n", token);
       fclose(fp);
       exit(1);
     }
+    if (check_format_password(token) == 1) {
+      fprintf(stderr, "Invalid password format: \"%s\"\n", token);
+      fclose(fp);
+      exit(1);
+    }
+    memcpy(accounts[count_accounts].password, token, strlen(token) + 1);
 
     // Parse friends
     token = strtok(NULL, "|");
@@ -203,35 +215,28 @@ int db_read_accounts() {
 
   for (int i = 0; i < count_accounts; i++) {
     int j;
-    printf("%d  | %8s | %8s | ", accounts[i].id, accounts[i].username,
+    printf("%2d | %8s | %8s | ", accounts[i].id, accounts[i].username,
            accounts[i].password);
-    for (j = 0; j < MAX_FRIENDS; j++) {
-      if (accounts[i].friends[j] == 0)
-        break;
+
+    for (j = 0; j < MAX_FRIENDS && accounts[i].friends[j] != 0; j++) {
       printf("%d ", accounts[i].friends[j]);
     }
-    printf("%*s", abs(9 - 2 * j) + 1, "");
-    printf("| ");
+    printf("%*s", abs(9 - 2 * j), "");
+    printf(" | ");
 
-    for (j = 0; j < MAX_FRIEND_REQUESTS; j++) {
-      if (accounts[i].friend_requests[j] == 0)
-        break;
+    for (j = 0; j < MAX_FRIEND_REQUESTS && accounts[i].friend_requests[j] != 0; j++) {
       printf("%d ", accounts[i].friend_requests[j]);
     }
-    printf("%*s", abs(15 - 2 * j) + 1, "");
-    printf("| ");
+    printf("%*s", abs(15 - 2 * j), "");
+    printf(" | ");
 
-    for (j = 0; j < MAX_EVENT_JOINS; j++) {
-      if (accounts[i].event_joins[j] == 0)
-        break;
+    for (j = 0; j < MAX_EVENT_JOINS && accounts[i].event_joins[j] != 0; j++) {
       printf("%d ", accounts[i].event_joins[j]);
     }
-    printf("%*s", abs(11 - 2 * j) + 1, "");
-    printf("| ");
+    printf("%*s", abs(11 - 2 * j), "");
+    printf(" | ");
 
-    for (j = 0; j < MAX_EVENT_REQUESTS; j++) {
-      if (accounts[i].event_requests[j][0] == 0)
-        break;
+    for (j = 0; j < MAX_EVENT_REQUESTS && accounts[i].event_requests[j][0] != 0; j++) {
       printf("%d,%d ", accounts[i].event_requests[j][0],
              accounts[i].event_requests[j][1]);
     }
@@ -295,35 +300,28 @@ int db_save_accounts() {
 
   for (int i = 0; i < count_accounts; i++) {
     int j;
-    fprintf(fp, "%d  | %8s | %8s | ", accounts[i].id, accounts[i].username,
+    fprintf(fp, "%d | %8s | %8s | ", accounts[i].id, accounts[i].username,
            accounts[i].password);
-    for (j = 0; j < MAX_FRIENDS; j++) {
-      if (accounts[i].friends[j] == 0)
-        break;
+
+    for (j = 0; j < MAX_FRIENDS && accounts[i].friends[j] != 0; j++) {
       fprintf(fp, "%d ", accounts[i].friends[j]);
     }
-    fprintf(fp, "%*s", abs(9 - 2 * j) + 1, "");
-    fprintf(fp, "| ");
+    fprintf(fp, "%*s", abs(9 - 2 * j), "");
+    fprintf(fp, " | ");
 
-    for (j = 0; j < MAX_FRIEND_REQUESTS; j++) {
-      if (accounts[i].friend_requests[j] == 0)
-        break;
+    for (j = 0; j < MAX_FRIEND_REQUESTS && accounts[i].friend_requests[j] != 0; j++) {
       fprintf(fp, "%d ", accounts[i].friend_requests[j]);
     }
-    fprintf(fp, "%*s", abs(15 - 2 * j) + 1, "");
-    fprintf(fp, "| ");
+    fprintf(fp, "%*s", abs(15 - 2 * j), "");
+    fprintf(fp, " | ");
 
-    for (j = 0; j < MAX_EVENT_JOINS; j++) {
-      if (accounts[i].event_joins[j] == 0)
-        break;
+    for (j = 0; j < MAX_EVENT_JOINS && accounts[i].event_joins[j] != 0; j++) {
       fprintf(fp, "%d ", accounts[i].event_joins[j]);
     }
-    fprintf(fp, "%*s", abs(11 - 2 * j) + 1, "");
-    fprintf(fp, "| ");
+    fprintf(fp, "%*s", abs(11 - 2 * j), "");
+    fprintf(fp, " | ");
 
-    for (j = 0; j < MAX_EVENT_REQUESTS; j++) {
-      if (accounts[i].event_requests[j][0] == 0)
-        break;
+    for (j = 0; j < MAX_EVENT_REQUESTS && accounts[i].event_requests[j][0] != 0; j++) {
       fprintf(fp, "%d,%d ", accounts[i].event_requests[j][0],
              accounts[i].event_requests[j][1]);
     }

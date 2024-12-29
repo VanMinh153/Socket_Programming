@@ -20,14 +20,17 @@ all: server client admin
 t1: test/test.o $(OBJ_INCLUDE)
 	$(CC) $(CFLAGS) -o $@ $(patsubst %, obj/%, $(notdir $^))
 
+t2: test/test2.o $(OBJ_INCLUDE)
+	$(CC) $(CFLAGS) -o $@ $(patsubst %, obj/%, $(notdir $^))
+	
+test_function: test/test_function.o
+	$(CC) $(CFLAGS) -o $@ $(patsubst %, obj/%, $(notdir $^))
+
 test: test/test.o $(OBJ_ALL)
 	$(CC) $(CFLAGS) -o release/$@ $(patsubst %, obj/%, $(notdir $^))
 
 test2: test/test2.o $(OBJ_ALL)
 	$(CC) $(CFLAGS) -o release/$@ $(patsubst %, obj/%, $(notdir $^))
-
-test_function: test/test_function.o
-	$(CC) $(CFLAGS) -o $@ $(patsubst %, obj/%, $(notdir $^))
 
 server_test: server/server_test.o $(OBJ_SERVER) $(OBJ_INCLUDE)
 	$(CC) $(CFLAGS) -o release/$@ $(patsubst %, obj/%, $(notdir $^))
