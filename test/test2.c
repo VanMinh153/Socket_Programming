@@ -1,9 +1,12 @@
-#include "include_all.h"
+// #include "include_all.h"
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 
 int main() {
   char str[] = "   abc   def   ";
   char *ptr = str;
-  char str2[11] = {0};
+  char str2[4] = {0};
   printf("~%s~\n", ptr);
 
   // ptr = trim_space(ptr);
@@ -15,7 +18,7 @@ int main() {
   // strncpy(str2, ptr, 13);
   // printf("~%s~\n", str2);
 
-  strlcpy(str2, ptr, 20);
+  strcpy(str2, ptr);
   printf("~%s~\n", str2);
   
   return 0;

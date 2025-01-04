@@ -1,0 +1,27 @@
+CC = gcc
+CFLAGS = -Wall -Wextra -I./include
+
+TARGET = server client
+OBJ_SERVER = $(patsubst %.c, %.o, $(wildcard server/include/*.c))
+OBJ_CLIENT = $(patsubst %.c, %.o, $(wildcard client/include/*.c))
+OBJ_INCLUDE = $(patsubst %.c, %.o, $(wildcard include/*.c))
+OBJ_ALL = $(OBJ_SERVER) $(OBJ_CLIENT) $(OBJ_INCLUDE)
+TARGET_F = $(patsubst %, release/%, $(TARGET))
+
+all: $(TARGET)
+
+server: server/main.o $(OBJ_SERVER) $(OBJ_INCLUDE)
+	$(CC) $(CFLAGS) -o release/$@ $(patsubst %, obj/%, $(notdir $^))
+
+client: client/app.o $(OBJ_CLIENT) $(OBJ_INCLUDE)
+	$(CC) $(CFLAGS) -o release/$@ $(patsubst %, obj/%, $(notdir $^))
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o obj/$(notdir $@)
+
+# ______________________________________________________________________
+.PHONY: clean
+clean:
+	find . -name "*.o" -type f -delete
+# rm -f $(OBJ_ALL) $(TARGET_F)
+

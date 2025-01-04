@@ -1,15 +1,15 @@
 #ifndef TCP_SOCKET_H
 #define TCP_SOCKET_H
 
+#include "config.h"
 #include <arpa/inet.h>
-#include <config.h>
+#include <errno.h>
 #include <netinet/in.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
-#include <errno.h>
-#include <stdbool.h>
 
 #ifdef TEST
 #define TEST_TCP_SOCKET_1

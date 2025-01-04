@@ -7,6 +7,16 @@ $? is the list of all prerequisites that are newer than the target.
 $* is the stem with which an implicit rule matches.
 $+ is the list of all the prerequisites, with no duplicates.
 
+# ______________________________________________________________________
+main: $(OBJ)
+	$(CC) $(CFLAGS) -o $@ $^
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+clean:
+	rm -f *.o
+# ______________________________________________________________________
 SRC_INCLUDE = $(wildcard include/*.c)
 OBJ_INCLUDE = $(SRC_INCLUDE:.c=.o)
 ~ $(patsubst %.c, %.o, $(wildcard include/*.c))
@@ -18,8 +28,6 @@ INCLUDE_DIRS := $(shell find ./ -type d -name "include")
 INCLUDE_FLAGS := $(addprefix -I, $(INCLUDE_DIRS))
 CFLAGS = -Wall -Wextra INCLUDE_FLAGS
 ~ gcc $(find . -type d -exec printf '-I%s ' {} \;)
-
-
 # ______________________________________________________________________
 # Example:
 CC = gcc
