@@ -41,16 +41,16 @@ int main() {
     printf("~%s~\n", ptr);
     break;
 
-    printf("Testing: skip_space()\n");
-    ptr = skip_space(str);
+    printf("Testing: skip_blank()\n");
+    ptr = skip_blank(str);
     printf("~%s~\n", ptr);
 
-    printf("Testing: skip_2space()\n");
-    ptr = skip_2space(str);
+    printf("Testing: skip_2blank()\n");
+    ptr = skip_2blank(str);
     printf("~%s~\n", ptr);
 
-    printf("Testing: trim_space()\n");
-    ptr = trim_space(str);
+    printf("Testing: trim_blank()\n");
+    ptr = trim_blank(str);
     printf("~%s~\n", ptr);
   }
   return 0;

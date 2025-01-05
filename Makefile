@@ -14,16 +14,15 @@ OBJ_INCLUDE = $(patsubst %.c, %.o, $(wildcard include/*.c))
 OBJ_ALL = $(OBJ_SERVER) $(OBJ_CLIENT) $(OBJ_ADMIN) $(OBJ_INCLUDE)
 
 #_______________________________________________________________________________
-all: server client admin
-
+all: server client_terminal
 
 t1: test/test.o $(OBJ_INCLUDE)
 	$(CC) $(CFLAGS) -o $@ $(patsubst %, obj/%, $(notdir $^))
 
-t2: test/test2.o $(OBJ_INCLUDE)
+t2: test/test2.o include/utils.o
 	$(CC) $(CFLAGS) -o $@ $(patsubst %, obj/%, $(notdir $^))
 	
-test_function: test/test_function.o
+tf: test/test_function.o
 	$(CC) $(CFLAGS) -o $@ $(patsubst %, obj/%, $(notdir $^))
 
 test: test/test.o $(OBJ_ALL)
@@ -60,11 +59,12 @@ admin_terminal: admin/admin_terminal.o $(OBJ_ADMIN) $(OBJ_INCLUDE)
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o obj/$(notdir $@)
 #_______________________________________________________________________________
-.PHONY: clean clean_obj
+.PHONY: clean clean_all
 clean:
 	rm -f obj/*.o $(TARGET_F)
 
 clean_all:
+	rm -f $(TARGET_F)
 	find . -name "*.o" -type f -delete
 	find . -name "*.Identifier" -type f -delete
 

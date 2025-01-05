@@ -1,5 +1,5 @@
 Build an event management application with the following functions:
-- Register a new account
+- signup a new account
 - Log in to the account to use
 - Create a new event. Event information includes time, location, event type (Private or Public) and event description
 - Send event invitations to friends
@@ -9,7 +9,7 @@ Build an event management application with the following functions:
 ***
 - Stream processing: 1 point
 - Set up socket input/output mechanism on server: 2 points
-- Register and manage accounts: 2 points
+- signup and manage accounts: 2 points
 - Log in and manage sessions: 2 points
 - Get event list: 1 point
 - Create new event: 1 point

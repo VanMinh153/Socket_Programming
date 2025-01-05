@@ -1,231 +1,752 @@
-// #include "config.h"
-// #include "tcp_socket.h"
-// #include <arpa/inet.h>
-// #include <netinet/in.h>
-// #include <pthread.h>
-// #include <stdio.h>
-// #include <stdlib.h>
-// #include <string.h>
-// #include <sys/socket.h>
-// #include <unistd.h>
-
-// // #define MAX_CLIENTS 10
-// #define MAX_USERNAME 50
-// #define MAX_PASSWORD 50
-// #define BUFFER_SIZE 1024
-// #define recv(fd, buf) recv_msg((fd), (buf), server_buffer)
-
-// typedef struct {
-//   char username[MAX_USERNAME];
-//   char password[MAX_PASSWORD];
-// } Account;
-
-// typedef struct {
-//   int socket;
-//   char username[MAX_USERNAME];
-//   int is_authenticated;
-// } SessionInfo;
-
-// char server_buffer[MSG_SIZE * 10] = {0};
-// Account accounts[MAX_CLIENTS];
-// int account_count = 0;
-// SessionInfo sessions[MAX_CLIENTS];
-// int session_count = 0;
+#include "server.h"
 
 // pthread_mutex_t accounts_mutex = PTHREAD_MUTEX_INITIALIZER;
 // pthread_mutex_t clients_mutex = PTHREAD_MUTEX_INITIALIZER;
 
-// void load_accounts() { // Tested
-//   FILE *file = fopen("accounts.txt", "r");
-//   if (file == NULL) {
-//     printf("No accounts file found. Creating new one.\n");
-//     return;
-//   }
+/*
+@function: handle message from client
+@parameter: [IN] msg: message from client
+            [IN] session: session's infomation
+@return: 0 if success
+         -1 if fail
+         -2 if message not determine
+*/
+int handle_msg(char *msg, session_t *_session) {
+  session_t session = *_session;
+  int connfd = session.connfd;
+  // char *recv_buffer = session.recv_buffer;
+  char *parse = msg;
+  int retval = -1;
+  char send_m[LEN_MSG + 1] = {0};
+  char str_temp[LEN_MSG + 1] = {0}; // temporary string
+  int temp = 0;
 
-//   pthread_mutex_lock(&accounts_mutex);
-//   while (fscanf(file, "%s %s", accounts[account_count].username,
-//                 accounts[account_count].password) == 2) {
-//     account_count++;
-//     if (account_count >= MAX_CLIENTS)
-//       break;
-//   }
-//   pthread_mutex_unlock(&accounts_mutex);
-//   fclose(file);
-// }
+  char command[LEN_COMMAND + 1] = {0};
+  char option[LEN_OPTION + 1] = {0};
 
-// int authenticate_user(char *username, char *password) { // Tested
-//   pthread_mutex_lock(&accounts_mutex);
-//   for (int i = 0; i < account_count; i++) {
-//     if (strcmp(accounts[i].username, username) == 0 &&
-//         strcmp(accounts[i].password, password) == 0) {
-//       pthread_mutex_unlock(&accounts_mutex);
-//       return 1;
-//     }
-//   }
-//   pthread_mutex_unlock(&accounts_mutex);
-//   return 0;
-// }
+  //@@
+  printf("\n### %d: `%s`\n", connfd, msg);
 
-// int register_user(char *username, char *password) { // Tested
-//   pthread_mutex_lock(&accounts_mutex);
-//   // Check if username already exists
-//   for (int i = 0; i < account_count; i++) {
-//     if (strcmp(accounts[i].username, username) == 0) {
-//       pthread_mutex_unlock(&accounts_mutex);
-//       return 0;
-//     }
-//   }
+  // Get command
+  retval = sscanf_(&parse, command);
+  if (retval == 1) {
+    send_(BLANK_MSG);
+    return 1;
+  } else if (retval == 2) {
+    send_(COMMAND_NOT_FOUND);
+    return 1;
+  }
 
-//   // Add new account
-//   strcpy(accounts[account_count].username, username);
-//   strcpy(accounts[account_count].password, password);
-//   account_count++;
-//   // @database Save accounts to file
-//   FILE *file = fopen("accounts.txt", "a");
-//   if (file == NULL) {
-//     printf("Error saving accounts file\n");
-//     return 0;
-//   }
-//   fprintf(file, "%s %s\n", username, password);
-//   fclose(file);
+  //@@
+  // printf("Command: `%s`\n", command);
+  // send_(command);
+  printf("***\n");
 
-//   pthread_mutex_unlock(&accounts_mutex);
-//   return 1;
-// }
+  //________________________________________________________________________________________
+  int user_id = session.user_id;
+  int friend_id = -1;
+  int event_id = -1;
+  // int user_idx = -1;
+  int friend_idx = -1;
+  int event_idx = -1;
+  // int access_flag = 0;
 
-// void broadcast_message(char *message, char *sender) {
-//   pthread_mutex_lock(&clients_mutex);
-//   for (int i = 0; i < session_count; i++) {
-//     if (strcmp(sessions[i].username, sender) != 0 &&
-//         sessions[i].is_authenticated) {
-//       send(sessions[i].socket, message);
-//     }
-//   }
-//   pthread_mutex_unlock(&clients_mutex);
-// }
+  char username[LEN_USERNAME + 1] = {0};
+  char password[LEN_PASSWORD + 1] = {0};
+  char event[LEN_EVENT_NAME + 1] = {0};
+  //______________________________________________________________________
+  // signin 'username' 'password'
+  if (strcmp(command, "signin") == 0) {
+    if (session.user_id != 0) {
+      send_(SIGNED_IN);
+      fprintf(stderr, "User has been logged in\n");
+      return 2;
+    }
 
-// void *handle_client(void *arg) { // Tested
-//   SessionInfo *client = (SessionInfo *)arg;
-//   char buffer[BUFFER_SIZE];
-//   int read_size;
+    retval = sscanf_(&parse, username);
+    if (retval == 1) {
+      send_(ARGS_MISSING);
+      return 1;
+    } else if (retval == 2) {
+      send_(USER_NOT_FOUND);
+      return 1;
+    }
 
-//   while (1) {
-//     // Login/Register process
-//     while (client->is_authenticated == 0) {
-//       memset(buffer, 0, BUFFER_SIZE);
-//       read_size = recv(client->socket, buffer);
-//       if (read_size <= 0) {
-//         close(client->socket);
-//         return NULL;
-//       }
+    retval = sscanf_(&parse, password);
+    if (retval == 1) {
+      send_(ARGS_MISSING);
+      return 1;
+    } else if (retval == 2) {
+      send_(PASSWORD_INCORRECT);
+      return 1;
+    }
 
-//       char command[10], username[MAX_USERNAME], password[MAX_PASSWORD];
-//       if (sscanf(buffer, "%s %s %s", command, username, password) != 3) {
-//         send(client->socket, "INVALID LOGIN/REGISTER FORMAT");
-//         continue;
-//       }
+    if (!is_blank(parse)) {
+      send_(ARGS_EXCEED);
+      return 1;
+    }
 
-//       if (strcmp(command, "LOGIN") == 0) {
-//         if (authenticate_user(username, password) == 0) {
-//           send(client->socket, "FAILED");
-//         } else {
-//           strcpy(client->username, username);
-//           client->is_authenticated = 1;
-//           send(client->socket, "SUCCESS");
-//           break;
-//         }
-//       } else if (strcmp(command, "REGISTER") == 0) {
-//         if (register_user(username, password) == 0) {
-//           send(client->socket, "FAILED");
-//         } else {
-//           strcpy(client->username, username);
-//           send(client->socket, "SUCCESS");
-//           client->is_authenticated = 1;
-//           break;
-//         }
-//       }
-//     }
+    user_id = get_user_id(username);
+    if (user_id == -1) {
+      send_(ACCOUNT_NOT_EXIST);
+      return 1;
+    }
 
-//     // Chat process
-//     while (1) {
-//       read_size = recv(client->socket, buffer);
-//       if (read_size <= 0) {
-//         close(client->socket);
-//         return NULL;
-//       }
+    retval = handle_signin(user_id, password);
+    if (retval == 2) {
+      send_(PASSWORD_INCORRECT);
+      return 1;
+    }
+    assert(retval == 0);
+    _session->user_id = get_user_id(username);
+    send_(OK);
+  }
+  //______________________________________________________________________
+  // signup 'username' 'password'
+  else if (strcmp(command, "signup") == 0) {
+    retval = sscanf_(&parse, username);
+    if (retval == 1) {
+      send_(ARGS_MISSING);
+      return 1;
+    } else if (retval == 2) {
+      send_(USER_NOT_FOUND);
+      return 1;
+    }
 
-//       if (strcmp(buffer, "EXIT") == 0) {
-//         client->is_authenticated = 0;
-//         break;
-//       }
-//       char message[BUFFER_SIZE * 2];
-//       snprintf(message, sizeof(message), "%s: %s", client->username, buffer);
-//       broadcast_message(message, client->username);
-//     }
-//   }
-//   return NULL;
-// }
-// //________________________________________________________________________________________
-// int main(int argc, char *argv[]) {
-//   if (argc != 2) {
-//     printf("Usage: %s <PORT>\n", argv[0]);
-//     return 1;
-//   }
-//   memset(accounts, 0, sizeof(accounts));
-//   memset(sessions, 0, sizeof(sessions));
+    retval = sscanf_(&parse, password);
+    if (retval == 1) {
+      send_(ARGS_MISSING);
+      return 1;
+    } else if (retval == 2) {
+      send_(PASSWORD_INCORRECT);
+      return 1;
+    }
 
-//   load_accounts();
+    if (!is_blank(parse)) {
+      send_(ARGS_EXCEED);
+      return 1;
+    }
 
-//   int server_socket, client_socket;
-//   struct sockaddr_in server_addr, client_addr;
-//   socklen_t client_addr_len = sizeof(client_addr);
-//   int port = atoi(argv[1]);
+    retval = handle_signup(username, password);
+    if (retval == 1) {
+      send_(OUT_OF_MEMORY);
+    } else if (retval == 2) {
+      send_(USERNAME_FORMAT_INCORRECT);
+      return 1;
+    } else if (retval == 3) {
+      send_(PASSWORD_FORMAT_INCORRECT);
+      return 1;
+    } else if (retval == 4) {
+      send_(ACCOUNT_EXISTED);
+      return 1;
+    }
+    send_(OK);
+  }
+  //______________________________________________________________________
+  // Only login state can use this command
+  if (session.user_id == 0) {
+    send_(NOT_SIGNED_IN);
+    return 1;
+  } else {
+    // user_idx = get_user_idx(user_id);
+  }
+  //______________________________________________________________________
+  // signout
+  if (strcmp(command, "signout") == 0) {
+    if (!is_blank(parse)) {
+      send_(ARGS_EXCEED);
+      return 1;
+    }
+    _session->user_id = 0;
+    send_(OK);
+  }
+  //______________________________________________________________________
+  // change_password 'current_password' 'new_password'
+  else if (strcmp(command, "change_password") == 0) {
+    retval = sscanf_(&parse, password);
+    if (retval == 1) {
+      send_(ARGS_MISSING);
+      return 1;
+    } else if (retval == 2) {
+      send_(PASSWORD_FORMAT_INCORRECT);
+      return 1;
+    }
 
-//   // Create socket
-//   server_socket = socket(AF_INET, SOCK_STREAM, 0);
-//   if (server_socket < 0) {
-//     perror("Error creating socket");
-//     return 1;
-//   }
+    retval = sscanf_2(&parse, str_temp, LEN_PASSWORD);
+    if (retval == 1) {
+      send_(ARGS_MISSING);
+      return 1;
+    } else if (retval == 2) {
+      send_(PASSWORD_FORMAT_INCORRECT);
+      return 1;
+    }
 
-//   server_addr.sin_family = AF_INET;
-//   server_addr.sin_addr.s_addr = INADDR_ANY;
-//   server_addr.sin_port = htons(port);
+    if (!is_blank(parse)) {
+      send_(ARGS_EXCEED);
+      return 1;
+    }
 
-//   // Bind
-//   if (bind(server_socket, (struct sockaddr *)&server_addr,
-//            sizeof(server_addr)) < 0) {
-//     perror("Error binding socket");
-//     return 1;
-//   }
+    retval = handle_change_password(user_id, password, str_temp);
+    if (retval == 2) {
+      send_(PASSWORD_INCORRECT);
+      return 1;
+    } else if (retval == 3) {
+      send_(PASSWORD_FORMAT_INCORRECT);
+      return 1;
+    }
+    assert(retval == 0);
+    send_(OK);
+  }
+  //______________________________________________________________________
+  // change_username 'password' 'new_username'
+  else if (strcmp(command, "change_username") == 0) {
+    retval = sscanf_(&parse, password);
+    if (retval == 1) {
+      send_(ARGS_MISSING);
+      return 1;
+    } else if (retval == 2) {
+      send_(PASSWORD_FORMAT_INCORRECT);
+      return 1;
+    }
 
-//   // Listen
-//   listen(server_socket, MAX_CLIENTS);
-//   printf("Server running on port %d\n", port);
+    retval = sscanf_(&parse, username);
+    if (retval == 1) {
+      send_(ARGS_MISSING);
+      return 1;
+    } else if (retval == 2) {
+      send_(USERNAME_FORMAT_INCORRECT);
+      return 1;
+    }
 
-//   while (1) {
-//     client_socket = accept(server_socket, (struct sockaddr *)&client_addr,
-//                            &client_addr_len);
-//     if (client_socket < 0) {
-//       perror("Error accepting connection");
-//       continue;
-//     }
+    if (!is_blank(parse)) {
+      send_(ARGS_EXCEED);
+      return 1;
+    }
 
-//     if (session_count >= MAX_CLIENTS) {
-//       send(client_socket, "MAX CLIENTS REACHED");
-//       close(client_socket);
-//     }
+    retval = handle_change_username(user_id, password, str_temp);
+    if (retval == 2) {
+      send_(PASSWORD_INCORRECT);
+      return 1;
+    } else if (retval == 3) {
+      send_(USERNAME_FORMAT_INCORRECT);
+      return 1;
+    }
+    assert(retval == 0);
+    send_(OK);
+  }
+  //______________________________________________________________________
+  // read -user | -event | -event_info
+  else if (strcmp(command, "read") == 0) {
+    retval = sscanf_(&parse, option);
+    if (retval == 1) {
+      send_(OPTION_MISSING);
+      return 1;
+    } else if (retval == 2) {
+      send_(OPTION_INVALID);
+      return 1;
+    }
+    //______________________________________________________________________
+    // read -user
+    if (strcmp(option, "-user") == 0) {
+      if (!is_blank(parse)) {
+        send_(ARGS_EXCEED);
+        return 1;
+      }
 
-//     sessions[session_count].socket = client_socket;
-//     sessions[session_count].is_authenticated = 0;
-//     session_count++;
+      retval = handle_read_user(user_id);
+      assert(retval == 0);
+      send_(OK);
+      send_(cmd_return);
+      return 0;
+    }
+    //______________________________________________________________________
+    // read -event 'event_id'
+    else if (strcmp(str_temp, "-event") == 0) {
+      retval = sscanf_d(&parse, &event_id);
+      if (retval == 1) {
+        send_(EVENT_NOT_FOUND);
+        return 1;
+      }
 
-//     pthread_t thread_id;
-//     pthread_create(&thread_id, NULL, handle_client,
-//                    &sessions[session_count - 1]);
-//     pthread_detach(thread_id);
-//   }
+      if (!is_blank(parse)) {
+        send_(ARGS_EXCEED);
+        return 1;
+      }
 
-//   close(server_socket);
-//   return 0;
-// }
+      event_idx = get_event_idx(event_id);
+      if (event_idx == -1) {
+        send_(EVENT_NOT_FOUND);
+        return 1;
+      }
+      if (events[event_idx].owner != user_id) {
+        send_(NO_ACCESS);
+        return 1;
+      }
+
+      retval = handle_read_event(event_id);
+      assert(retval == 0);
+      send_(OK);
+      send_(cmd_return);
+      return 0;
+    }
+    //______________________________________________________________________
+    // read -event_info 'event_id'
+    else if (strcmp(str_temp, "-event_info") == 0) {
+      retval = sscanf_d(&parse, &event_id);
+      if (retval == 1) {
+        send_(EVENT_NOT_FOUND);
+        return 1;
+      }
+
+      if (!is_blank(parse)) {
+        send_(ARGS_EXCEED);
+        return 1;
+      }
+
+      event_idx = get_event_idx(event_id);
+      if (event_idx == -1) {
+        send_(EVENT_NOT_FOUND);
+        return 1;
+      }
+      if (events[event_idx].type == 1) {
+        if (!existed(events[event_idx].members, MAX_MEMBERS, user_id)) {
+          send_(NO_ACCESS);
+          return 1;
+        }
+      }
+
+      retval = handle_read_event_info(event_id);
+      assert(retval == 0);
+      send_(OK);
+      send_(cmd_return);
+      return 0;
+    }
+    // [command] read
+    else {
+      if (*option != '-') {
+        send_(OPTION_MISSING);
+        return 1;
+      } else {
+        send_(OPTION_INVALID);
+        return 1;
+      }
+    }
+  }
+  //______________________________________________________________________
+  // list -user | -event | -event_detail
+  else if (strcmp(command, "list") == 0) {
+    retval = sscanf_(&parse, option);
+    if (retval == 1) {
+      send_(OPTION_MISSING);
+      return 1;
+    } else if (retval == 2) {
+      send_(OPTION_INVALID);
+      return 1;
+    }
+    //______________________________________________________________________
+    // list -user
+    if (strcmp(option, "-user") == 0) {
+      if (!is_blank(parse)) {
+        send_(ARGS_EXCEED);
+        return 1;
+      }
+
+      retval = handle_list_user();
+      assert(retval == 0);
+      send_(OK);
+      send_(cmd_return);
+      return 0;
+    }
+    //______________________________________________________________________
+    // list -event
+    else if (strcmp(option, "-event") == 0) {
+      if (!is_blank(parse)) {
+        send_(ARGS_EXCEED);
+        return 1;
+      }
+
+      retval = handle_list_event();
+      assert(retval == 0);
+      send_(OK);
+      send_(cmd_return);
+      return 0;
+    }
+    //______________________________________________________________________
+    // list -event_detail
+    else if (strcmp(option, "-event_detail") == 0) {
+      if (!is_blank(parse)) {
+        send_(ARGS_EXCEED);
+        return 1;
+      }
+
+      retval = handle_list_event_detail();
+      assert(retval == 0);
+      send_(OK);
+      send_(cmd_return);
+      return 0;
+    }
+    //______________________________________________________________________
+    // list -event_member 'event_id'
+    else if (strcmp(option, "-event_member") == 0) {
+      retval = sscanf_d(&parse, &event_id);
+      if (retval == 1) {
+        send_(EVENT_NOT_FOUND);
+        return 1;
+      }
+
+      if (!is_blank(parse)) {
+        send_(ARGS_EXCEED);
+        return 1;
+      }
+
+      event_idx = get_event_idx(event_id);
+      if (event_idx == -1) {
+        send_(EVENT_NOT_FOUND);
+        return 1;
+      }
+      if (events[event_idx].owner != user_id) {
+        send_(NO_ACCESS);
+        return 1;
+      }
+
+      retval = handle_eventM_event_member(event_id);
+      assert(retval == 0);
+      send_(OK);
+      send_(cmd_return);
+      return 0;
+    }
+    //______________________________________________________________________
+    // list -event_request 'event_id'
+    else if (strcmp(option, "-event_request") == 0) {
+      retval = sscanf_d(&parse, &event_id);
+      if (retval == 1) {
+        send_(EVENT_NOT_FOUND);
+        return 1;
+      }
+
+      if (!is_blank(parse)) {
+        send_(ARGS_EXCEED);
+        return 1;
+      }
+
+      event_idx = get_event_idx(event_id);
+      if (event_idx == -1) {
+        send_(EVENT_NOT_FOUND);
+        return 1;
+      }
+      if (events[event_idx].owner != user_id) {
+        send_(NO_ACCESS);
+        return 1;
+      }
+
+      retval = handle_eventO_event_request(event_id);
+      assert(retval == 0);
+      send_(OK);
+      send_(cmd_return);
+      return 0;
+    }
+    // [command] list
+    else {
+      if (*option != '-') {
+        send_(OPTION_MISSING);
+        return 1;
+      } else {
+        send_(OPTION_INVALID);
+        return 1;
+      }
+    }
+  }
+  //______________________________________________________________________
+  // friend -request | -take_back | -accept | -reject | -unfriend 
+  else if (strcmp(command, "friend") == 0) {
+    retval = sscanf_(&parse, option);
+    if (retval == 1) {
+      send_(OPTION_MISSING);
+      return 1;
+    } else if (retval == 2) {
+      send_(OPTION_INVALID);
+      return 1;
+    }
+    //______________________________________________________________________
+    // friend -request 'friend_id'
+    if (strcmp(option, "-request") == 0) {
+      retval = sscanf_d(&parse, &friend_id);
+      if (retval == 1) {
+        send_(USER_NOT_FOUND);
+        return 1;
+      }
+
+      if (!is_blank(parse)) {
+        send_(ARGS_EXCEED);
+        return 1;
+      }
+
+      friend_idx = get_user_idx(friend_id);
+      if (friend_idx == -1) {
+        send_(USER_NOT_FOUND);
+        return 1;
+      }
+
+      retval = handle_friend_request(user_id, friend_id);
+      if (retval == 2) {
+        send_(REQUEST_EXISTED);
+        return 1;
+      } else if (retval == 3) {
+        send_(REACHED_LIMIT);
+        return 1;
+      }
+      assert(retval == 0);
+      send_(OK);
+      return 0;
+    }
+    //______________________________________________________________________
+    // friend -take_back 'friend_id'
+    else if (strcmp(option, "-take_back") == 0) {
+      retval = sscanf_d(&parse, &friend_id);
+      if (retval == 1) {
+        send_(USER_NOT_FOUND);
+        return 1;
+      }
+
+      if (!is_blank(parse)) {
+        send_(ARGS_EXCEED);
+        return 1;
+      }
+
+      friend_idx = get_user_idx(friend_id);
+      if (friend_idx == -1) {
+        send_(USER_NOT_FOUND);
+        return 1;
+      }
+
+      retval = handle_friend_take_back(user_id, friend_id);
+      if (retval == 2) {
+        send_(REQUEST_NOT_FOUND);
+        return 1;
+      }
+      assert(retval == 0);
+      send_(OK);
+      return 0;
+    }
+    //______________________________________________________________________
+    // friend -accept 'friend_id'
+    else if (strcmp(option, "-accept") == 0) {
+      retval = sscanf_d(&parse, &friend_id);
+      if (retval == 1) {
+        send_(USER_NOT_FOUND);
+        return 1;
+      }
+
+      if (!is_blank(parse)) {
+        send_(ARGS_EXCEED);
+        return 1;
+      }
+
+      friend_idx = get_user_idx(friend_id);
+      if (friend_idx == -1) {
+        send_(USER_NOT_FOUND);
+        return 1;
+      }
+
+      retval = handle_friend_accept(user_id, friend_id);
+      if (retval == 2) {
+        send_(REQUEST_NOT_FOUND);
+        return 1;
+      } else if (retval == 4) {
+        send_(REACHED_LIMIT);
+        return 1;
+      }
+      assert(retval == 0);
+      send_(OK);
+      return 0;
+    }
+    //______________________________________________________________________
+    // friend -reject 'friend_id'
+    else if (strcmp(option, "-reject") == 0) {
+      retval = sscanf_d(&parse, &friend_id);
+      if (retval == 1) {
+        send_(USER_NOT_FOUND);
+        return 1;
+      }
+
+      if (!is_blank(parse)) {
+        send_(ARGS_EXCEED);
+        return 1;
+      }
+
+      friend_idx = get_user_idx(friend_id);
+      if (friend_idx == -1) {
+        send_(USER_NOT_FOUND);
+        return 1;
+      }
+
+      retval = handle_friend_reject(user_id, friend_id);
+      if (retval == 2) {
+        send_(REQUEST_NOT_FOUND);
+        return 1;
+      }
+      assert(retval == 0);
+      send_(OK);
+      return 0;
+    }
+    //______________________________________________________________________
+    // friend -unfriend 'friend_id'
+    else if (strcmp(option, "-unfriend") == 0) {
+      retval = sscanf_d(&parse, &friend_id);
+      if (retval == 1) {
+        send_(USER_NOT_FOUND);
+        return 1;
+      }
+
+      if (!is_blank(parse)) {
+        send_(ARGS_EXCEED);
+        return 1;
+      }
+
+      friend_idx = get_user_idx(friend_id);
+      if (friend_idx == -1) {
+        send_(USER_NOT_FOUND);
+        return 1;
+      }
+
+      retval = handle_friend_unfriend(user_id, friend_id);
+      if (retval == 2) {
+        send_(NOT_FRIEND);
+        return 1;
+      }
+      assert(retval == 0);
+      send_(OK);
+      return 0;
+    }
+    // [command] friend
+    else {
+      if (*option != '-') {
+        send_(OPTION_MISSING);
+        return 1;
+      } else {
+        send_(OPTION_INVALID);
+        return 1;
+      }
+    }
+  }
+  //______________________________________________________________________
+  // event -create | -update | -delete | -join | -leave | -request | -accept | -reject
+  // event -event_member | -event_request
+  else if (strcmp(command, "event") == 0) {
+    char name[LEN_EVENT_NAME + 1] = {0};
+    char date[LEN_EVENT_DATE + 1] = {0};
+    char address[LEN_EVENT_ADDRESS + 1] = {0};
+    int type = 0;
+    char details[LEN_EVENT_DETAILS + 1] = {0};
+    // int owner = user_id;
+    
+    retval = sscanf_(&parse, option);
+    if (retval == 1) {
+      send_(OPTION_MISSING);
+      return 1;
+    } else if (retval == 2) {
+      send_(OPTION_INVALID);
+      return 1;
+    }
+    //______________________________________________________________________
+    // event -create 'event_name' 'event_date' 'event_address' 'event_type' 'event_details'
+    if (strcmp(option, "-create") == 0) {
+    }
+    //______________________________________________________________________
+    // event -update 'event_id' 'event_name' 'event_date' 'event_address' 'event_type' 'event_details'
+    else if (strcmp(option, "-update") == 0) {
+    }
+    // [command] event
+    else {
+      if (*option != '-') {
+        send_(OPTION_MISSING);
+        return 1;
+      } else {
+        send_(OPTION_INVALID);
+        return 1;
+      }
+    }
+  }
+  //______________________________________________________________________
+  // user -friend | -friend_request | -event_join | -event_request
+  else if (strcmp(command, "user") == 0) {
+    retval = sscanf_(&parse, option);
+    if (retval == 1) {
+      send_(OPTION_MISSING);
+      return 1;
+    } else if (retval == 2) {
+      send_(OPTION_INVALID);
+      return 1;
+    }
+    //______________________________________________________________________
+    // user -friend
+    if (strcmp(option, "-friend") == 0) {
+      if (!is_blank(parse)) {
+        send_(ARGS_EXCEED);
+        return 1;
+      }
+
+      retval = handle_user_friend(user_id);
+      assert(retval == 0);
+      send_(OK);
+      send_(cmd_return);
+      return 0;
+    }
+    //______________________________________________________________________
+    // user -friend_request
+    else if (strcmp(option, "-friend_request") == 0) {
+      if (!is_blank(parse)) {
+        send_(ARGS_EXCEED);
+        return 1;
+      }
+
+      retval = handle_user_friend_request(user_id);
+      assert(retval == 0);
+      send_(OK);
+      send_(cmd_return);
+      return 0;
+    }
+    //______________________________________________________________________
+    // user -event_join
+    else if (strcmp(option, "-event_join") == 0) {
+      if (!is_blank(parse)) {
+        send_(ARGS_EXCEED);
+        return 1;
+      }
+
+      retval = handle_user_event_join(user_id);
+      assert(retval == 0);
+      send_(OK);
+      send_(cmd_return);
+      return 0;
+    }
+    //______________________________________________________________________
+    // user -event_request
+    else if (strcmp(option, "-event_request") == 0) {
+      if (!is_blank(parse)) {
+        send_(ARGS_EXCEED);
+        return 1;
+      }
+
+      retval = handle_user_event_request(user_id);
+      assert(retval == 0);
+      send_(OK);
+      send_(cmd_return);
+      return 0;
+    }
+    // [command] user
+    else {
+      if (*option != '-') {
+        send_(OPTION_MISSING);
+        return 1;
+      } else {
+        send_(OPTION_INVALID);
+        return 1;
+      }
+    }
+  }
+  //______________________________________________________________________
+
+  send_(COMMAND_NOT_FOUND);
+  return 2;
+}

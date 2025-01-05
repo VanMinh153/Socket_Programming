@@ -2,6 +2,7 @@
 #define SERVER_H
 
 #include "include_all.h"
+#include <assert.h>
 #include <arpa/inet.h>
 #include <errno.h>
 #include <netdb.h>
@@ -17,42 +18,49 @@
 #define SERVER_PORT 5555
 #define TIME_OUT 3 // 3ms, timeout while call poll()
 //______________________________________________________________________
-#define LOGGED_IN "Have been logged in"
-#define NOT_LOGGED_IN "Have not logged in"
-#define ACCOUNT_NOT_EXIST "Account does not exist"
-#define ACCOUNT_LOCKED "Account is locked"
+#define CONNECT_SUCCESS "Connected to server"
+#define OK "Success"
 
-#define CONNECT_SUCCESS "Connect successful"
-#define LOGIN_SUCCESS "Login successful"
-#define LOGOUT_SUCCESS "Logout successful"
-#define REGISTER_SUCCESS "Register successful"
-#define CHANGE_PASSWORD_SUCCESS "Change password successful"
-#define FEEDBACK_SUCCESS "Feedback successful"
-#define GET_IP_SUCCESS "Get IP address successful"
-#define GET_DOMAIN_SUCCESS "Get domain name successful"
-#define UPLOAD_SUCCESS "Upload successful"
-
-#define PASSWORD_INCORRECT "Password is incorrect"
+#define SIGNED_IN "Have been logged in"
+#define NOT_SIGNED_IN "Have not logged in"
 #define ACCOUNT_EXISTED "Account existed"
-#define INVALID_IP "Invalid IP address"
-#define NOT_FOUND "Not found"
-#define GET_IP_FAIL "IP address not found"
-#define GET_DOMAIN_FAIL "Domain name not found"
-#define UPLOAD_READY "Server is ready to receive file"
-#define FILE_TOO_LARGE "File too large"
+#define ACCOUNT_NOT_EXIST "Account does not exist"
+#define PASSWORD_INCORRECT "Password is incorrect"
+#define PASSWORD_FORMAT_INCORRECT "Password format is incorrect"
+#define USERNAME_FORMAT_INCORRECT "Username format is incorrect"
+#define USER_EXISTED "User existed"
+#define USER_NOT_FOUND "User not found"
+#define EVENT_EXISTED "Event existed"
+#define EVENT_NOT_FOUND "Event not found"
+#define REQUEST_EXISTED "Request existed"
+#define REQUEST_NOT_FOUND "Request not found"
+#define NOT_FRIEND "Not friend"
 
-#define MSG_NOT_DETERMINED "Message cannot determined"
+#define COMMAND_NOT_FOUND "Command not found"
+#define OPTION_INVALID "Invalid option"
+#define OPTION_MISSING "Missing option"
+#define OPTION_EXCEED "Exceed option"
+#define ARGS_INVALID "Invalid arguments"
+#define ARGS_MISSING "Missing arguments"
+#define ARGS_EXCEED "Exceed arguments"
 #define MSG_OVERLENGTH "Message exceed the maximum message size"
-#define RECV_DATA_FAIL "Get data fail"
-#define INVALID_COMMAND "Invalid command"
-#define INVALID_ARGS "Invalid arguments"
+#define MSG_NOT_DETERMINED "Message cannot determined"
+#define BLANK_MSG "Blank message"
 
-#define SERVER_ERROR "Server error"
+#define NO_ACCESS "Do not have permission to access"
+#define REACHED_LIMIT "Reached the limit of requests"
+
+#define OUT_OF_MEMORY "Server database out of memory"
 //______________________________________________________________________
 
-int init_server(int port);
-void* handle_connections(void* arg);
-void* process_client_requests(void* arg);
-void handle_client_message(session_t* session, char* message);
+#ifdef TEST
+#define TEST_PARSE
+#endif
+
+#define send_(msg) send_msg(connfd, msg)
+#define recv_(msg) recv_msg(connfd, msg, recv_buffer)
+
+int handle_msg(char *msg, session_t *session);
+
 
 #endif

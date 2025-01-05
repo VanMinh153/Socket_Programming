@@ -1,35 +1,35 @@
 # Event Management Application
 - Feature for user
   Account management
-    Login, sign up, change password, logout
+    signin, sign up, change password, signout
     Make friend
   Event management
     CRUD events, send a invitation, accept the invitation
     Request to join, accept the request
 
 ________________________________________________________________________
-# Screen 1: Login page
+# Screen 1: signin page
 _________________________________________________
 |                                                |
 |         Event Management Application           |
 |________________________________________________|
 
-  1. Login
-  2. Register
+  1. Sign in
+  2. Sign up
   Choose feature [1-2]: 
 
 Demo:
   Choose feature [1-2]: 1
   Enter username: user1
   Enter password: 123
-  > Login successfully
+  > Signin successfully
   !> Password is incorrect
   !> Username or password syntax is incorrect
 
   Choose feature [1-2]: 2
   Enter username: user1
   Enter password: 123
-  > Register successfully
+  > signup successfully
   !> Username is already taken
 
 ________________________________________________________________________
@@ -46,7 +46,7 @@ _________________________________________________
   5. Show other users
   6. Manage your account
   7. Notification center
-  8. Logout
+  8. signout
   Choose feature [1-8]: 
 
 ________________________________________________________________________

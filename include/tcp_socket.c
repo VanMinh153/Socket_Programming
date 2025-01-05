@@ -28,7 +28,7 @@ bool connection_is_active() {
  *    -1 have error
  *    -2 connection closed
  */
-int _send(int fd, void *buf, size_t n, int flags) {
+int send_(int fd, void *buf, size_t n, int flags) {
   int sent_size = 0;
   while (sent_size < n) {
     int retval = send(fd, buf + sent_size, n - sent_size, flags);
@@ -42,7 +42,7 @@ int _send(int fd, void *buf, size_t n, int flags) {
   }
 
 #ifdef TEST_TCP_SOCKET_1
-  printf("%2d -> %s~\n", fd, (char *)buf);
+  printf(" %d -> `%s`\n", fd, (char *)buf);
 #endif
   return n;
 }
@@ -54,7 +54,7 @@ int _send(int fd, void *buf, size_t n, int flags) {
  *    -1 have error
  *    -2 Connection closed
  */
-int _recv(int fd, void *buf, size_t n, int flags) {
+int recv_(int fd, void *buf, size_t n, int flags) {
   int read_size = recv(fd, buf, n, flags);
   if (read_size == 0)
     return -2;
@@ -69,7 +69,7 @@ int _recv(int fd, void *buf, size_t n, int flags) {
   p[read_size] = '\0';
 
 #ifdef TEST_TCP_SOCKET_1
-  printf("%2d -> %s~\n", fd, (char *)buf);
+  printf(" %d <- `%s`\n", fd, (char *)buf);
 #endif
   return read_size;
 }
@@ -92,10 +92,10 @@ int send_msg(int fd, char *msg) {
   strcat(__send_msg, DELIMITER);
   msg_len += 2;
 
-  int retval = _send(fd, __send_msg, msg_len, 0);
+  int retval = send_(fd, __send_msg, msg_len, 0);
   if (retval == msg_len) {
-#ifdef DEBUG_SEND_RECV_2
-    printf(" -> msg:%s~\n", (char *)msg);
+#ifdef TEST_TCP_SOCKET_2
+    printf("@%d -> `%s`\n", fd, msg);
 #endif
     return 0;
   } else {
@@ -106,8 +106,9 @@ int send_msg(int fd, char *msg) {
 /**
  * @brief Receive a message from a socket
  * @return
- *     1 if success to get a message from msg_buf
- *     0 if success to call _recv() and get a message
+ *     2 if success to get a message from msg_buf
+ *     1 if success to call recv_() and get a message
+ *     0 no message had received
  *    -1 have error
  *    -2 Connection closed
  *    -3 Message overlength
@@ -115,69 +116,72 @@ int send_msg(int fd, char *msg) {
 int recv_msg(int fd, char *msg, char *msg_buf) {
   int ready_flag = 0;
   int retval = getmsg(msg, msg_buf);
-  if (retval > 0)
-    return 1;
-  else if (retval == -1)
+  if (retval > 0) {
+#ifdef TEST_TCP_SOCKET_2
+    printf("@%d <- `%s`\n", fd, msg);
+#endif
+    return 2;
+  } else if (retval == -1)
     return -3;
 
-  retval = _recv(fd, __buffer, sizeof(__buffer) - 1, 0);
+  retval = recv_(fd, __buffer, sizeof(__buffer) - 1, 0);
   if (retval < 0)
     return retval;
-  retval = getmsg_2(msg, __buffer, msg_buf);
-  if (retval > 0)
-    return 0;
-  else if (retval == -1)
-    return -3;
 
-#ifdef DEBUG_SEND_RECV
-  printf(" <- msg:%s~\n", __msg);
+  retval = getmsg_2(msg, __buffer, msg_buf);
+  if (retval > 0) {
+#ifdef TEST_TCP_SOCKET_2
+    printf("@%d <- `%s`\n", fd, msg);
 #endif
-  return strlen(__msg);
+    return 1;
+  } else if (retval == -1)
+    return -3;
+  
+  return 0;
 }
 //______________________________________________________________________
 int getmsg(char *msg, char *msg_buf) {
   char *p = strstr(msg_buf, DELIMITER);
+  if (p == NULL)
+    return 0;
+
   int msg_size = p - msg_buf;
   if (msg_size > LEN_MSG) {
     fprintf(stderr, "getmsg(): Message too long\n");
     return -1;
   }
+  memcpy(msg, msg_buf, p - msg_buf);
+  msg[msg_size] = '\0';
 
-  if (p != NULL) {
-    memcpy(msg, msg_buf, p - msg_buf);
-    msg[msg_size] = '\0';
-
-    strcpy(msg_buf, p + LEN_DELIMITER);
-    return msg_size;
-  }
-  return 0;
+  strcpy(msg_buf, p + LEN_DELIMITER);
+  return msg_size;
 }
 
 int getmsg_2(char *msg, char *recv_buf, char *msg_buf) {
   char *p = strstr(recv_buf, DELIMITER);
-  if (p != NULL) {
-    if (msg_buf[0] == '\0') {
-      int msg_size = p - recv_buf;
-      if (msg_size > LEN_MSG) {
-        fprintf(stderr, "getmsg_2(): Message too long\n");
-        return -1;
-      }
-      memcpy(msg, recv_buf, p - recv_buf);
-      msg[msg_size] = '\0';
-      strcpy(msg_buf, p + LEN_DELIMITER);
-      return msg_size;
-    } else {
-      int msg_size = strlen(msg_buf) + (p - recv_buf);
-      if (msg_size > LEN_MSG) {
-        fprintf(stderr, "getmsg_2(): Message too long\n");
-        return -1;
-      }
-      strcpy(msg, msg_buf);
-      strncat(msg, recv_buf, p - recv_buf);
-      msg[msg_size] = '\0';
-      strcpy(msg_buf, p + LEN_DELIMITER);
-      return msg_size;
+  if (p == NULL)
+    return 0;
+
+  if (msg_buf[0] == '\0') {
+    int msg_size = p - recv_buf;
+    if (msg_size > LEN_MSG) {
+      fprintf(stderr, "getmsg_2(): Message too long\n");
+      return -1;
     }
+    memcpy(msg, recv_buf, p - recv_buf);
+    msg[msg_size] = '\0';
+    strcpy(msg_buf, p + LEN_DELIMITER);
+    return msg_size;
+  } else {
+    int msg_size = strlen(msg_buf) + (p - recv_buf);
+    if (msg_size > LEN_MSG) {
+      fprintf(stderr, "getmsg_2(): Message too long\n");
+      return -1;
+    }
+    strcpy(msg, msg_buf);
+    strncat(msg, recv_buf, p - recv_buf);
+    msg[msg_size] = '\0';
+    strcpy(msg_buf, p + LEN_DELIMITER);
+    return msg_size;
   }
-  return 0;
 }

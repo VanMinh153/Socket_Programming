@@ -19,7 +19,8 @@
 			"config.h": "c",
 			"stat.h": "c",
 			"fcntl.h": "c",
-			"server.h": "c"
+			"server.h": "c",
+			"pthread.h": "c"
 		}
 	}
 }

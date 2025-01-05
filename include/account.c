@@ -7,68 +7,92 @@ account_t accounts[MAX_ACCOUNTS] = {0};
 int count_accounts = 0;
 int gen_account_id = 1;
 
-// Helper function to find account by username
-int find_account_by_username(const char *username) {
-  for (int i = 0; i < count_accounts; i++) {
-    if (strcmp(accounts[i].username, username) == 0) {
-      return i;
-    }
-  }
-  return -1;
-}
-
-int handle_login(char *username, char *password) {
-  int acc_idx = find_account_by_username(username);
-
-  if (acc_idx == -1) {
-    return 2; // Username not found
-  }
-
-  if (strcmp(accounts[acc_idx].password, password) == 0) {
-    return 0; // Login successful
-  }
-
-  return 1; // Incorrect password
-}
-
-int handle_signup(char *username, char *password) {
+/**
+ * Return 0 if account is created successfully
+ *        1 if account database is full
+ *        2 if username format is incorrect
+ *        3 if password format is incorrect
+ *        4 if username already exists
+ */
+int create_account(char *username, char *password) {
   if (count_accounts >= MAX_ACCOUNTS) {
-    return 1; // Account limit reached
+    fprintf(stderr, "!! Account database is full !!\n");
+    return 1;
   }
 
-  if (find_account_by_username(username) != -1) {
-    return 1; // Username already exists
+  if (check_format_username(username) == 1)
+    return 2;
+  if (check_format_password(password) == 1)
+    return 3;
+
+  // Check if username already exists
+  for (int i = 0; i < count_accounts; i++) {
+    if (strcmp(accounts[i].username, username) == 0)
+      return 4;
   }
 
   // Create new account
-  account_t new_account;
-  new_account.id = gen_account_id++;
-  strncpy(new_account.username, username, LEN_USERNAME);
-  strncpy(new_account.password, password, LEN_PASSWORD);
-
-  // Initialize arrays
-  memset(new_account.friends, 0, sizeof(new_account.friends));
-  memset(new_account.friend_requests, 0, sizeof(new_account.friend_requests));
-  memset(new_account.event_joins, 0, sizeof(new_account.event_joins));
-  memset(new_account.event_requests, 0, sizeof(new_account.event_requests));
-
-  accounts[count_accounts++] = new_account;
+  accounts[count_accounts].id = gen_account_id;
+  memcpy(accounts[count_accounts].username, username, strlen(username) + 1);
+  memcpy(accounts[count_accounts].password, password, strlen(password) + 1);
+  gen_account_id++;
+  count_accounts++;
   return 0;
 }
 
-int handle_change_password(char *username, char *cur_password,
-                           char *new_password) {
-  int acc_idx = find_account_by_username(username);
-
-  if (acc_idx != -1 && strcmp(accounts[acc_idx].password, cur_password) == 0) {
-    strncpy(accounts[acc_idx].password, new_password, LEN_PASSWORD);
-    return 0;
+int get_user_idx(int user_id) {
+  for (int i = 0; i < count_accounts; i++) {
+    if (accounts[i].id == user_id)
+      return i;
   }
-
-  return 1; // Current password incorrect
+  fprintf(stderr, "User ID not found: %d\n", user_id);
+  return -1;
 }
 
+int get_user_id(char *username) {
+  for (int i = 0; i < count_accounts; i++) {
+    if (strcmp(accounts[i].username, username) == 0)
+      return accounts[i].id;
+  }
+  fprintf(stderr, "Username not found: \"%s\"\n", username);
+  return -1;
+}
+
+char *get_username(int user_id) {
+  int idx = get_user_idx(user_id);
+  if (idx == -1)
+    return NULL;
+  return accounts[idx].username;
+}
+
+bool user_exists(int user_id) {
+  return get_user_idx(user_id) != -1;
+}
+
+/**
+ * Return 0 if password is correct
+ *        1 if user is not found
+ *        2 if password is incorrect
+ */
+int check_password(int user_id, char *password) {
+  int idx = get_user_idx(user_id);
+  if (idx == -1)
+    return 1;
+  
+  if (strcmp(accounts[idx].password, password) == 0)
+    return 0;
+  return 2;
+}
+
+/**
+ * Username format: [a-zA-Z0-9]+(-[a-zA-Z0-9]+)*
+ * Return 0 if username format is correct
+ *        1 if username format is incorrect
+ */
 int check_format_username(char *username) {
+  if (strlen(username) > LEN_USERNAME) {
+    return 1; // Username is too long
+  }
   regex_t regex;
   int ret;
 
@@ -89,8 +113,15 @@ int check_format_username(char *username) {
   return 1; // Format is incorrect
 }
 
+/**
+ * Password format: [a-zA-Z0-9]+ (alphanumeric characters)
+ * Return 0 if password format is correct
+ *        1 if password format is incorrect
+ */
 int check_format_password(char *password) {
-  // Check if password contains only alphanumeric characters
+  if (strlen(password) > LEN_PASSWORD) {
+    return 1; // Password is too long
+  }  
   for (int i = 0; password[i] != '\0'; i++) {
     if (!isalnum(password[i])) {
       return 1;
@@ -125,7 +156,7 @@ int db_read_accounts() {
     token = strtok(NULL, "|");
     if (token == NULL)
       continue;
-    token = trim_space(token);
+    token = trim_blank(token);
     if (strlen(token) > LEN_USERNAME) {
       fprintf(stderr, "Username too long: \"%s\"\n", token);
       fclose(fp);
@@ -143,7 +174,7 @@ int db_read_accounts() {
     token = strtok(NULL, "|");
     if (token == NULL)
       continue;
-    token = trim_space(token);
+    token = trim_blank(token);
     if (strlen(token) > LEN_PASSWORD) {
       fprintf(stderr, "Password too long: \"%s\"\n", token);
       fclose(fp);
@@ -161,10 +192,10 @@ int db_read_accounts() {
     if (token == NULL)
       continue;
     i = 0;
-    token = skip_space(token);
+    token = skip_blank(token);
     while (*token != '\0' && i < MAX_FRIENDS) {
       accounts[count_accounts].friends[i++] = atoi(token);
-      token = skip_2space(token);
+      token = skip_2blank(token);
     }
 
     // Parse friend requests
@@ -172,10 +203,10 @@ int db_read_accounts() {
     if (token == NULL)
       continue;
     i = 0;
-    token = skip_space(token);
+    token = skip_blank(token);
     while (*token != '\0' && i < MAX_FRIEND_REQUESTS) {
       accounts[count_accounts].friend_requests[i++] = atoi(token);
-      token = skip_2space(token);
+      token = skip_2blank(token);
     }
 
     // Parse event joins
@@ -183,10 +214,10 @@ int db_read_accounts() {
     if (token == NULL)
       continue;
     i = 0;
-    token = skip_space(token);
+    token = skip_blank(token);
     while (*token != '\0' && i < MAX_EVENT_JOINS) {
       accounts[count_accounts].event_joins[i++] = atoi(token);
-      token = skip_2space(token);
+      token = skip_2blank(token);
     }
 
     // Parse event requests
@@ -196,12 +227,12 @@ int db_read_accounts() {
       continue;
     }
     i = 0;
-    token = skip_space(token);
+    token = skip_blank(token);
     while (*token != '\0' && i < MAX_EVENT_REQUESTS) {
       sscanf(token, "%d,%d", &accounts[count_accounts].event_requests[i][0],
              &accounts[count_accounts].event_requests[i][1]);
       i++;
-      token = skip_2space(token);
+      token = skip_2blank(token);
     }
     count_accounts++;
   }
@@ -330,250 +361,4 @@ int db_save_accounts() {
 
   fclose(fp);
   return 0;
-}
-
-int create_friend_invites(char *username) {
-  // Find the target account
-  int target_idx = -1;
-  int cur_idx = -1;
-
-  // Find current user and target user indices
-  for (int i = 0; i < count_accounts; i++) {
-    if (strcmp(accounts[i].username, username) == 0) {
-      target_idx = i;
-    }
-  }
-
-  for (int i = 0; i < MAX_SESSIONS; i++) {
-    if (sessions[i].logged) {
-      for (int j = 0; j < count_accounts; j++) {
-        if (strcmp(accounts[j].username, sessions[i].username) == 0) {
-          cur_idx = j;
-          break;
-        }
-      }
-      break;
-    }
-  }
-
-  if (target_idx == -1 || cur_idx == -1)
-    return 1;
-
-  // Check if already friends
-  for (int i = 0; i < MAX_FRIENDS; i++) {
-    if (accounts[cur_idx].friends[i] == accounts[target_idx].id) {
-      return 2;
-    }
-  }
-
-  // Add request to target's friend requests
-  for (int i = 0; i < MAX_FRIEND_REQUESTS; i++) {
-    if (accounts[target_idx].friend_requests[i] == 0) {
-      accounts[target_idx].friend_requests[i] = accounts[cur_idx].id;
-      return 0;
-    }
-  }
-
-  return 3; // No space for new request
-}
-
-int take_back_friend_invites(char *username) {
-  int target_idx = -1;
-  int cur_idx = -1;
-
-  // Find indices
-  for (int i = 0; i < count_accounts; i++) {
-    if (strcmp(accounts[i].username, username) == 0) {
-      target_idx = i;
-    }
-  }
-
-  for (int i = 0; i < MAX_SESSIONS; i++) {
-    if (sessions[i].logged) {
-      for (int j = 0; j < count_accounts; j++) {
-        if (strcmp(accounts[j].username, sessions[i].username) == 0) {
-          cur_idx = j;
-          break;
-        }
-      }
-      break;
-    }
-  }
-
-  if (target_idx == -1 || cur_idx == -1)
-    return 1;
-
-  // Remove request from target's friend requests
-  for (int i = 0; i < MAX_FRIEND_REQUESTS; i++) {
-    if (accounts[target_idx].friend_requests[i] == accounts[cur_idx].id) {
-      // Shift remaining requests
-      for (int j = i; j < MAX_FRIEND_REQUESTS - 1; j++) {
-        accounts[target_idx].friend_requests[j] =
-            accounts[target_idx].friend_requests[j + 1];
-      }
-      accounts[target_idx].friend_requests[MAX_FRIEND_REQUESTS - 1] = 0;
-      return 0;
-    }
-  }
-
-  return 2; // Request not found
-}
-
-int accept_friend_request(char *username) {
-  int requester_idx = -1;
-  int cur_idx = -1;
-
-  // Find indices
-  for (int i = 0; i < count_accounts; i++) {
-    if (strcmp(accounts[i].username, username) == 0) {
-      requester_idx = i;
-    }
-  }
-
-  for (int i = 0; i < MAX_SESSIONS; i++) {
-    if (sessions[i].logged) {
-      for (int j = 0; j < count_accounts; j++) {
-        if (strcmp(accounts[j].username, sessions[i].username) == 0) {
-          cur_idx = j;
-          break;
-        }
-      }
-      break;
-    }
-  }
-
-  if (requester_idx == -1 || cur_idx == -1)
-    return 1;
-
-  // Verify request exists
-  int request_found = 0;
-  for (int i = 0; i < MAX_FRIEND_REQUESTS; i++) {
-    if (accounts[cur_idx].friend_requests[i] == accounts[requester_idx].id) {
-      request_found = 1;
-
-      // Remove request
-      for (int j = i; j < MAX_FRIEND_REQUESTS - 1; j++) {
-        accounts[cur_idx].friend_requests[j] =
-            accounts[cur_idx].friend_requests[j + 1];
-      }
-      accounts[cur_idx].friend_requests[MAX_FRIEND_REQUESTS - 1] = 0;
-      break;
-    }
-  }
-
-  if (!request_found)
-    return 2;
-
-  // Add to friends lists
-  int added_to_cur = 0, added_to_req = 0;
-
-  for (int i = 0; i < MAX_FRIENDS; i++) {
-    if (accounts[cur_idx].friends[i] == 0 && !added_to_cur) {
-      accounts[cur_idx].friends[i] = accounts[requester_idx].id;
-      added_to_cur = 1;
-    }
-    if (accounts[requester_idx].friends[i] == 0 && !added_to_req) {
-      accounts[requester_idx].friends[i] = accounts[cur_idx].id;
-      added_to_req = 1;
-    }
-    if (added_to_cur && added_to_req)
-      break;
-  }
-
-  return 0;
-}
-
-int reject_friend_request(char *username) {
-  int requester_idx = -1;
-  int cur_idx = -1;
-
-  // Find indices
-  for (int i = 0; i < count_accounts; i++) {
-    if (strcmp(accounts[i].username, username) == 0) {
-      requester_idx = i;
-    }
-  }
-
-  for (int i = 0; i < MAX_SESSIONS; i++) {
-    if (sessions[i].logged) {
-      for (int j = 0; j < count_accounts; j++) {
-        if (strcmp(accounts[j].username, sessions[i].username) == 0) {
-          cur_idx = j;
-          break;
-        }
-      }
-      break;
-    }
-  }
-
-  if (requester_idx == -1 || cur_idx == -1)
-    return 1;
-
-  // Remove request
-  for (int i = 0; i < MAX_FRIEND_REQUESTS; i++) {
-    if (accounts[cur_idx].friend_requests[i] == accounts[requester_idx].id) {
-      // Shift remaining requests
-      for (int j = i; j < MAX_FRIEND_REQUESTS - 1; j++) {
-        accounts[cur_idx].friend_requests[j] =
-            accounts[cur_idx].friend_requests[j + 1];
-      }
-      accounts[cur_idx].friend_requests[MAX_FRIEND_REQUESTS - 1] = 0;
-      return 0;
-    }
-  }
-
-  return 2; // Request not found
-}
-
-int unfriend(char *username) {
-  int target_idx = -1;
-  int cur_idx = -1;
-
-  // Find indices
-  for (int i = 0; i < count_accounts; i++) {
-    if (strcmp(accounts[i].username, username) == 0) {
-      target_idx = i;
-    }
-  }
-
-  for (int i = 0; i < MAX_SESSIONS; i++) {
-    if (sessions[i].logged) {
-      for (int j = 0; j < count_accounts; j++) {
-        if (strcmp(accounts[j].username, sessions[i].username) == 0) {
-          cur_idx = j;
-          break;
-        }
-      }
-      break;
-    }
-  }
-
-  if (target_idx == -1 || cur_idx == -1)
-    return 1;
-
-  // Remove from both friends lists
-  int removed_from_cur = 0, removed_from_target = 0;
-
-  for (int i = 0; i < MAX_FRIENDS; i++) {
-    if (accounts[cur_idx].friends[i] == accounts[target_idx].id) {
-      // Shift remaining friends
-      for (int j = i; j < MAX_FRIENDS - 1; j++) {
-        accounts[cur_idx].friends[j] = accounts[cur_idx].friends[j + 1];
-      }
-      accounts[cur_idx].friends[MAX_FRIENDS - 1] = 0;
-      removed_from_cur = 1;
-    }
-    if (accounts[target_idx].friends[i] == accounts[cur_idx].id) {
-      // Shift remaining friends
-      for (int j = i; j < MAX_FRIENDS - 1; j++) {
-        accounts[target_idx].friends[j] = accounts[target_idx].friends[j + 1];
-      }
-      accounts[target_idx].friends[MAX_FRIENDS - 1] = 0;
-      removed_from_target = 1;
-    }
-    if (removed_from_cur && removed_from_target)
-      break;
-  }
-
-  return removed_from_cur && removed_from_target ? 0 : 2;
 }

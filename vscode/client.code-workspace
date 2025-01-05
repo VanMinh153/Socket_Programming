@@ -9,13 +9,15 @@
 		"files.associations": {
 			"*.ino": "cpp",
 			"*.c": "c",
+			"*.txt": "plaintext",
 			"limits.h": "c",
 			"ctype.h": "c",
 			"socket.h": "c",
 			"random": "c",
 			"regex.h": "c",
 			"stdlib.h": "c",
-			"config.h": "c"
+			"config.h": "c",
+			"client.h": "c"
 		}
 	}
 }

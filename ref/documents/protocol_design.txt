@@ -1,10 +1,10 @@
 #2 Account management
 - Command
-  login 'username' 'password'
-  register 'username' 'password'
+  signin 'username' 'password'
+  signup 'username' 'password'
   change_username 'cur_password' 'new_username'
   change_password 'cur_password' 'new_password'
-  logout
+  signout
 
 - Protocol
   'all command'
@@ -14,10 +14,10 @@
   !> INCORRECT_PARAM
   !> NOT_FOUND
 
-  login 'username' 'password'
+  signin 'username' 'password'
   !> INCORRECT_PASSWORD
 
-  register 'username' 'password'
+  signup 'username' 'password'
   !> EXISTED_USERNAME
 
   change_username 'cur_password' 'new_username'
@@ -29,11 +29,10 @@
 ________________________________________________________________________
 #4 Friend List Management
 - Command
-  list -accounts
-  friend -list
-  friend -list_requests
-  friend -list_invites
-  friend -make 'username'
+  list -user
+  list -friend
+  list -friend_request
+  friend -request 'username'
   friend -take_back 'username'
   friend -accept 'username'
   friend -reject 'username'
@@ -47,23 +46,20 @@ ________________________________________________________________________
   !> INCORRECT_PARAM
   !> NOT_FOUND
 
-  list -accounts
+  list -user
   > OK 'list of username in system'
 
-  friend -list
+  list -friend
   > OK 'friend list'
 
-  friend -list_requests
-  > OK 'make friend request list'
-  
-  friend -list_invites
-  > OK 'make friend request list'
+  list -friend_request
+  > OK 'friend request list'
 
 ________________________________________________________________________
 #5 Event Management 1
 - Command
   event -make 'event name' | 'address' | 'event type' | 'event details'
-  event -list
+  list -event
   event -update 'event id' > 'event name' | 'address' | 'event type' | 'event details'
   event -delete 'event id'
 
@@ -76,7 +72,7 @@ ________________________________________________________________________
   !> NOT_FOUND
   
   event -make 'event name' | 'address' | 'event type' | 'event details'
-  event -list
+  list -event
   > OK 'event list'
 
   event -update 'event id' > 'event name' | 'address' | 'event type' | 'event details'
@@ -85,14 +81,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 #6 Event Management 2
 - Command
-  event -invite 'username' 'event id'
-  event -take_back 'username' 'event id'
+  eventM -request 'username' 'event id'
+  eventM -take_back 'username' 'event id'
+  eventO -accept 'username' 'event id'
+  eventO -reject 'username' 'event id'
+  event -request 'event id'
+  event -take_back 'event id'
   event -accept 'username' 'event id'
   event -reject 'username' 'event id'
-  event2 -request 'event id'
-  event2 -take_back 'event id'
-  event2 -accept 'username' 'event id'
-  event2 -reject 'username' 'event id'
 
 - Protocol
   'all command'
@@ -104,10 +100,10 @@ ________________________________________________________________________
 ________________________________________________________________________
 #8 Administrator
 - Command
-  admin -list_accounts
-  admin -list_sessions
-  admin -list_events
-  admin -list_logs
+  listA -user
+  listA -event
+  listA -session
+  listA -log
 
 - Protocol
   'all command'

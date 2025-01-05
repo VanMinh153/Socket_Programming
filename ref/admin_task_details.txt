@@ -3,7 +3,7 @@
   View database
   View log history
 ________________________________________________________________________
-# Screen 1: Login page
+# Screen 1: signin page
 _________________________________________________
 |                                                |
 |         Event Management Application           |
@@ -22,7 +22,7 @@ _________________________________________________
   3. View event list
   4. View server log
   5. View log by user
-  6. Logout
+  6. signout
   Choose feature [1-6]:
 
 ________________________________________________________________________
@@ -57,7 +57,7 @@ _________________________________________________
 |                                                |
 |         Event Management Application           |
 |________________________________________________|
-  IP Address | Username | Login Time | Last username | Logout time
+  IP Address | Username | signin Time | Last username | signout time
 
   ('q' to go back):
 
@@ -110,6 +110,6 @@ _________________________________________________
 |         Event Management Application           |
 |________________________________________________|
   Online status: 
-  Last login:
+  Last signin:
   ...
   (q to go back):

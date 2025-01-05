@@ -27,7 +27,7 @@ typedef struct {
   int gen_account_id
 
 - functions
-int handle_login(char* username, char *password);
+int handle_signin(char* username, char *password);
 int handle_signup(char* username, char *password);
 int handle_change_password(char* username, char* cur_password, char *new_password);
 int check_format_username(char* username);

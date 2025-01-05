@@ -10,20 +10,20 @@ ________________________________________________________________________
 
 [in process] #2 Account Management
 Features:
-  Login
+  signin
   Sign up
   Change password
-  Logout
+  signout
 
 Commands:
-  login 'username' 'password'
-  register 'username' 'password'
+  signin 'username' 'password'
+  signup 'username' 'password'
   change_username 'cur_password' 'new_username'
   change_password 'cur_password' 'new_password'
-  logout
+  signout
 
 Functions:
-  handle_login()
+  handle_signin()
   handle_signup()
   handle_change_password()
   check_format_username()
@@ -49,11 +49,10 @@ Features:
   Unfriend
 
 Commands:
-  list -accounts
-  friend -list
-  friend -list_requests
-  friend -list_invites
-  friend -make 'username'
+  list -user
+  list -friend
+  list -friend_request
+  friend -request 'username'
   friend -take_back 'username'
   friend -accept 'username'
   friend -reject 'username'
@@ -73,7 +72,7 @@ Features:
 
 Commands:
   event -make 'event name' | 'address' | 'event type' | 'event details'
-  event -list
+  list -event
   event -update 'event id' > 'event name' | 'address' | 'event type' | 'event details'
   event -delete 'event id'
 
@@ -91,14 +90,14 @@ Features:
   Accept event request
 
 Commands:
-  event -invite 'username' 'event id'
-  event -take_back 'username' 'event id'
+  eventM -request 'username' 'event id'
+  eventM -take_back 'username' 'event id'
+  eventO -accept 'username' 'event id'
+  eventO -reject 'username' 'event id'
+  event -request 'event id'
+  event -take_back 'event id'
   event -accept 'username' 'event id'
   event -reject 'username' 'event id'
-  event2 -request 'event id'
-  event2 -take_back 'event id'
-  event2 -accept 'username' 'event id'
-  event2 -reject 'username' 'event id'
 
 Functions:
   create_event_invites()
