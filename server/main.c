@@ -36,6 +36,9 @@ int main(int argc, char *argv[]) {
   printf("Loaded %d accounts from database\n", count_accounts);
   db_read_events();
   printf("Loaded %d events from database\n", count_events);
+  
+  db_save_accounts();
+  db_save_events();
 
   int retval = -1;
   char client_msg[LEN_MSG];
@@ -102,7 +105,9 @@ int main(int argc, char *argv[]) {
         retval = recv_msg(connfd, client_msg, sessions[i].recv_buffer);
         if (retval > 0) {
           handle_msg(client_msg, &sessions[i]);
-          continue;
+          db_save_accounts();
+          db_save_events();
+          break;
         } else {
           if (retval == -3) {
             // fprintf(stderr, "Message too long\n", LEN_MSG);
@@ -127,12 +132,12 @@ int main(int argc, char *argv[]) {
           }
         }
 
-        if (strstr(sessions[i].recv_buffer, DELIMITER) != NULL)
-          continue;
+        // if (strstr(sessions[i].recv_buffer, DELIMITER) != NULL)
+        //   continue;
 
-        if (poll(&pollfds[connfd], 1, 0) > 0)
-          if ((pollfds[i].revents & POLLIN) != 0)
-            continue;
+        // if (poll(&pollfds[connfd], 1, 0) > 0)
+        //   if ((pollfds[i].revents & POLLIN) != 0)
+        //     continue;
 
         break;
       }

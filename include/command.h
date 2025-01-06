@@ -31,7 +31,7 @@ int handle_listA_session();
 int handle_listA_log();
 
 // for current user
-int handle_read_user(int user);
+int handle_user_read_user(int user);
 
 int handle_user_friend(int user);
 int handle_user_friend_request(int user);
@@ -60,7 +60,7 @@ int handle_eventM_request(int user, int friend, int event);
 int handle_eventM_take_back(int user, int friend, int event);
 
 // for event's owner
-int handle_read_event(int event);
+int handle_eventO_read_event(int event);
 
 int handle_eventO_update(int event, char *event_name, char *date, char *address,
                         int type, char *details);

@@ -4,13 +4,28 @@
 #include "session.h"
 #include "utils.h"
 
-int test(session_t* _session) {
-  session_t session = *_session;
-  session.signed_in = true;
-}
-
 int main() {
+  char *str = NULL;
+  fgets_(&str);
+  printf("`%s`\n", str);
+  fgets_(&str);
+  printf("`%s`\n", str);
 
+  // char str[] = "   -4  abc   ";
+  // char *parse = str;
+  // int x = 0;
+  
+  // printf("`%s`\n", parse);
+  // strtol_(&parse, &x);
+  // printf("%d\n", x);
+  // printf("`%s`\n\n", parse);
+
+  // parse = str;
+  // x = 0;
+  // sscanf_d2(&parse, &x);
+  // printf("%d\n", x);
+  // printf("`%s`\n", parse);
+  
 
   // int arr[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
   // for (int i = 0; i < 9; i++) {

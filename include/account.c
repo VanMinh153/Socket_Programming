@@ -286,7 +286,7 @@ int db_save_accounts0() {
 
   for (int i = 0; i < count_accounts; i++) {
     // Write ID, username, and password
-    fprintf(fp, "%d | %s | %s | ", accounts[i].id, accounts[i].username,
+    fprintf(fp, "%2d| %s | %s | ", accounts[i].id, accounts[i].username,
             accounts[i].password);
 
     // Write friends
@@ -331,7 +331,7 @@ int db_save_accounts() {
 
   for (int i = 0; i < count_accounts; i++) {
     int j;
-    fprintf(fp, "%d | %8s | %8s | ", accounts[i].id, accounts[i].username,
+    fprintf(fp, "%2d| %8s | %8s | ", accounts[i].id, accounts[i].username,
            accounts[i].password);
 
     for (j = 0; j < MAX_FRIENDS && accounts[i].friends[j] != 0; j++) {

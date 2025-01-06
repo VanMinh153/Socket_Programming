@@ -15,8 +15,8 @@
 #define LEN_DELIMITER 2
 #define LEN_MSG 2048
 #define MSG_BUFFER_SIZE LEN_MSG + LEN_DELIMITER + 1 
-#define LEN_COMMAND 15
-#define LEN_OPTION 15 // include '-'
+#define LEN_COMMAND 25
+#define LEN_OPTION 25 // include '-'
 // session.h
 #define MAX_SESSIONS 500
 #define MAX_FDS MAX_SESSIONS + 10

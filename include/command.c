@@ -95,7 +95,7 @@ int handle_listA_log() { return 0; }
 
 //_________________________________________________________________________________________
 // for current user
-int handle_read_user(int user_id) {
+int handle_user_read_user(int user_id) {
   int user_idx = get_user_idx(user_id);
   if (user_idx == -1)
     return 1;
@@ -162,7 +162,7 @@ int handle_user_event_join(int user_id) {
     return 1;
   for (int i = 0; i < MAX_EVENT_JOINS && accounts[user_idx].event_joins[i] != 0;
        i++)
-    sprintf(cmd_return, " %s $",
+    sprintf(cmd_return, " %s |",
             get_event_name(accounts[user_idx].event_joins[i]));
   last_char(cmd_return, '\0');
   return 0;
@@ -175,7 +175,7 @@ int handle_user_event_request(int user_id) {
   for (int i = 0;
        i < MAX_EVENT_REQUESTS && accounts[user_idx].event_requests[i][0] != 0;
        i++)
-    sprintf(cmd_return, " %s,%s $",
+    sprintf(cmd_return, " %s,%s |",
             get_username(accounts[user_idx].event_requests[i][0]),
             get_event_name(accounts[user_idx].event_requests[i][1]));
   last_char(cmd_return, '\0');
@@ -194,7 +194,7 @@ int handle_friend_request(int user_id, int friend_id) {
     return 1;
 
   int retval = add_element(accounts[friend_idx].friend_requests,
-                           MAX_FRIEND_REQUESTS, friend_id);
+                           MAX_FRIEND_REQUESTS, user_id);
   if (retval != 0)
     return retval + 1;
   return 0;
@@ -370,6 +370,11 @@ int handle_eventM_event_member(int event) {
   return 0;
 }
 
+/**
+ * Return 0 if success
+ *       1 if user not found or friend not found
+ *       2 if event not found
+ */
 int handle_eventM_request(int user_id, int friend_id, int event_id) {
   int user_idx = get_user_idx(user_id);
   if (user_idx == -1)
@@ -381,12 +386,12 @@ int handle_eventM_request(int user_id, int friend_id, int event_id) {
 
   int event_idx = get_event_idx(event_id);
   if (event_idx == -1)
-    return 1;
+    return 2;
 
   int retval = add_element2(accounts[friend_idx].event_requests,
                             MAX_EVENT_REQUESTS, user_id, event_id);
   if (retval != 0)
-    return retval + 1;
+    return retval + 2;
   return 0;
 }
 
@@ -401,17 +406,17 @@ int handle_eventM_take_back(int user_id, int friend_id, int event_id) {
 
   int event_idx = get_event_idx(event_id);
   if (event_idx == -1)
-    return 1;
+    return 2;
 
   if (!remove_element2(accounts[friend_idx].event_requests, MAX_EVENT_REQUESTS,
                        user_id, event_id))
-    return 2;
+    return 3;
   return 0;
 }
 
 //_________________________________________________________________________________________
 // for event's owner
-int handle_read_event(int event_id) {
+int handle_eventO_read_event(int event_id) {
   int event_idx = get_event_idx(event_id);
   if (event_idx == -1)
     return 1;

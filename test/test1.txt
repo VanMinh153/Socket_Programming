@@ -1,0 +1,11 @@
+signin user1 pass1
+friend -request user2
+
+signin user2 pass2
+friend -accept user1
+
+signout
+change_password pass1 pass11
+
+
+event -create Event 10 | 10/10/2024 |  Location 10 |    0 | Details 10

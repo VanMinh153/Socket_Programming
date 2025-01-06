@@ -49,16 +49,22 @@ int main(int argc, char **argv) {
 
   while (1) {
     while (1) {
-      printf("Enter command: ");
+      printf("\nEnter command: ");
       if (fgets_(&command) == NULL)
         continue;
       break;
     }
 #ifdef TEST_APP_TERMINAL
-    printf("command: `%s`\n", command);
+    // printf("command: `%s`\n", command);
 #endif
+    // printf("");
     send_t(command);
     recv_f(recv_m);
+    if (strcmp(recv_m, OK2) == 0) {
+      recv_f(recv_m);
+      print_msg(recv_m);
+      continue;
+    }
     print_msg(recv_m);
   }
   return 0;

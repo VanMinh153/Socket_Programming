@@ -34,6 +34,7 @@ extern int gen_event_id;
 int create_event(char *name, char *date, char *address, int type, char *details, int owner);
 int update_event(int event_id, char *name, char *date, char *address, int type, char *details);
 int delete_event(int event_id);
+int get_event(char *src, char *name, char *date, char *address, int *type, char *details);
 
 
 int get_event_idx(int event_id);

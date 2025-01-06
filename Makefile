@@ -14,7 +14,7 @@ OBJ_INCLUDE = $(patsubst %.c, %.o, $(wildcard include/*.c))
 OBJ_ALL = $(OBJ_SERVER) $(OBJ_CLIENT) $(OBJ_ADMIN) $(OBJ_INCLUDE)
 
 #_______________________________________________________________________________
-all: server client_terminal
+all: server client
 
 t1: test/test.o $(OBJ_INCLUDE)
 	$(CC) $(CFLAGS) -o $@ $(patsubst %, obj/%, $(notdir $^))
@@ -44,10 +44,10 @@ admin_test: admin/admin_test.o $(OBJ_ADMIN) $(OBJ_INCLUDE)
 server: server/main.o $(OBJ_SERVER) $(OBJ_INCLUDE)
 	$(CC) $(CFLAGS) -o release/$@ $(patsubst %, obj/%, $(notdir $^))
 
-client: client/app.o $(OBJ_CLIENT) $(OBJ_INCLUDE)
-	$(CC) $(CFLAGS) -o release/$@ $(patsubst %, obj/%, $(notdir $^))
+# client: client/app.o $(OBJ_CLIENT) $(OBJ_INCLUDE)
+# 	$(CC) $(CFLAGS) -o release/$@ $(patsubst %, obj/%, $(notdir $^))
 
-client_terminal: client/app_terminal.o $(OBJ_CLIENT) $(OBJ_INCLUDE)
+client: client/app_terminal.o $(OBJ_CLIENT) $(OBJ_INCLUDE)
 	$(CC) $(CFLAGS) -o release/$@ $(patsubst %, obj/%, $(notdir $^))
 
 admin: admin/admin_app.o $(OBJ_ADMIN) $(OBJ_INCLUDE)

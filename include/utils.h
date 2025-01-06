@@ -2,6 +2,7 @@
 #define UTILS_H
 
 #include <stdbool.h>
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -11,15 +12,15 @@
 
 extern char __time[30];
 
-int add_element2(int **arr, int size, int value1, int value2);
-bool remove_element2(int **arr, int size, int value1, int value2);
-// int remove_element2e1(int **arr, int size, int value1);
-int remove_element2e2(int **arr, int size, int value2);
+int add_element2(int (*arr)[2], int size, int value1, int value2);
+bool remove_element2(int (*arr)[2], int size, int value1, int value2);
+// int remove_element2e1(int (*arr)[2], int size, int value1);
+int remove_element2e2(int (*arr)[2], int size, int value2);
 int add_element(int *arr, int size, int value);
 bool remove_element(int *arr, int size, int value);
 bool existed(int *arr, int size, int value);
 char *fgets_(char **str);
-int sscanf_d(char **src, int *dest);
+int strtol_(char **src, int *dest);
 int sscanf_(char **src, char *dest); // Tested
 int sscanf_2(char **src, char *dest, int max_len); // Tested
 

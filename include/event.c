@@ -8,7 +8,18 @@ int gen_event_id = 1;
 
 // bool check_event_member()
 
-int create_event(char *name, char *date, char *address, int type, char *details, int owner) {
+/**
+ * Return 0 if success
+ *        1 if event database is full
+ *        2 if event name too long
+ *        3 if event date too long
+ *        4 if event address too long
+ *        5 if invalid event type
+ *        6 if event details too long
+ *        7 if owner ID not found
+ */
+int create_event(char *name, char *date, char *address, int type, char *details,
+                 int owner) {
   if (count_events >= MAX_EVENTS) {
     fprintf(stderr, "Event database is full\n");
     return 1;
@@ -53,11 +64,12 @@ int create_event(char *name, char *date, char *address, int type, char *details,
   return 0;
 }
 
-int update_event(int event_id, char *name, char *date, char *address, int type, char *details) {
+int update_event(int event_id, char *name, char *date, char *address, int type,
+                 char *details) {
   int idx = get_event_idx(event_id);
   if (idx == -1)
     return 1;
-  
+
   if (strlen(name) > LEN_EVENT_NAME) {
     fprintf(stderr, "Event name too long: \"%s\"\n", name);
     return 2;
@@ -99,9 +111,9 @@ int delete_event(int event_id) {
       break;
     }
   }
-  if (idx2 == -1) 
+  if (idx2 == -1)
     idx2 = count_events - 1;
-  
+
   events[idx] = events[idx2];
   events[idx2].id = 0;
   return 0;
@@ -130,15 +142,73 @@ char *get_event_name(int event_id) {
   return events[idx].name;
 }
 
-bool event_exists(int event_id) {
-  return get_event_idx(event_id) != -1;
+bool event_exists(int event_id) { return get_event_idx(event_id) != -1; }
+
+int get_event(char *src, char *name, char *date, char *address,
+              int *type, char *details) {
+  char *token = src;
+  int retval = -1;
+
+  // Parse name
+  token = strtok(NULL, "|");
+  if (token == NULL)
+    return 1;
+  token = trim_blank(token);
+  if (strlen(token) > LEN_EVENT_NAME) {
+    fprintf(stderr, "Event name too long: \"%s\"\n", token);
+    return 1;
+  }
+  memcpy(name, token, strlen(token) + 1);
+
+  // Parse date
+  token = strtok(NULL, "|");
+  if (token == NULL)
+    return 2;
+  token = trim_blank(token);
+  if (strlen(token) > LEN_EVENT_DATE) {
+    fprintf(stderr, "Event date too long: \"%s\"\n", token);
+    return 2;
+  }
+  memcpy(date, token, strlen(token) + 1);
+
+  // Parse address
+  token = strtok(NULL, "|");
+  if (token == NULL)
+    return 3;
+  token = trim_blank(token);
+  if (strlen(token) > LEN_EVENT_ADDRESS) {
+    fprintf(stderr, "Event address too long: \"%s\"\n", token);
+    return 3;
+  }
+  memcpy(address, token, strlen(token) + 1);
+
+  // Parse type
+  token = strtok(NULL, "|");
+  if (token == NULL)
+    return 4;
+  if (strtol_(&token, type) == 1)
+    return 4;
+
+  // Parse details
+  // char *p = strtok(NULL, "|");
+  // if (p != NULL)
+  //   token = p;
+
+  token = trim_blank(token);
+  if (strlen(token) > LEN_EVENT_DETAILS) {
+    fprintf(stderr, "Event details too long: \"%s\"\n", token);
+    return 5;
+  }
+  memcpy(details, token, strlen(token) + 1);
+
+  return 0;
 }
 
 int db_read_events() {
   FILE *fp = fopen(DB_EVENTS, "r");
   if (fp == NULL) {
     perror("Error opening events database");
-    exit(1);
+    return 1;
   }
 
   char line[MAX_LINE_TEXT];
@@ -153,7 +223,8 @@ int db_read_events() {
     token = strtok(line, "|");
     if (token == NULL)
       continue;
-    events[count_events].id = atoi(token);
+    if (strtol_(&token, &events[count_events].id) == 1)
+      return 1;
     gen_event_id++;
 
     // Parse name
@@ -164,7 +235,7 @@ int db_read_events() {
     if (strlen(token) > LEN_EVENT_NAME) {
       fprintf(stderr, "Event name too long: \"%s\"\n", token);
       fclose(fp);
-      exit(1);
+      return 1;
     }
     memcpy(events[count_events].name, token, strlen(token) + 1);
 
@@ -176,7 +247,7 @@ int db_read_events() {
     if (strlen(token) > LEN_EVENT_DATE) {
       fprintf(stderr, "Event date too long: \"%s\"\n", token);
       fclose(fp);
-      exit(1);
+      return 1;
     }
     memcpy(events[count_events].date, token, strlen(token) + 1);
 
@@ -188,7 +259,7 @@ int db_read_events() {
     if (strlen(token) > LEN_EVENT_ADDRESS) {
       fprintf(stderr, "Event address too long: \"%s\"\n", token);
       fclose(fp);
-      exit(1);
+      return 1;
     }
     memcpy(events[count_events].address, token, strlen(token) + 1);
 
@@ -196,7 +267,8 @@ int db_read_events() {
     token = strtok(NULL, "|");
     if (token == NULL)
       continue;
-    events[count_events].type = atoi(token);
+    if (strtol_(&token, &events[count_events].type) == 1)
+      return 1;
 
     // Parse details
     token = strtok(NULL, "|");
@@ -206,7 +278,7 @@ int db_read_events() {
     if (strlen(token) > LEN_EVENT_DETAILS) {
       fprintf(stderr, "Event details too long: \"%s\"\n", token);
       fclose(fp);
-      exit(1);
+      return 1;
     }
     memcpy(events[count_events].details, token, strlen(token) + 1);
 
@@ -214,7 +286,8 @@ int db_read_events() {
     token = strtok(NULL, "|");
     if (token == NULL)
       continue;
-    events[count_events].owner = atoi(token);
+    if (strtol_(&token, &events[count_events].owner) == 1)
+      return 1;
 
     // Parse members
     token = strtok(NULL, "|");
@@ -223,7 +296,8 @@ int db_read_events() {
     i = 0;
     token = skip_blank(token);
     while (*token != '\0' && i < MAX_MEMBERS) {
-      events[count_events].members[i++] = atoi(token);
+      if (strtol_(&token, &events[count_events].members[i++]) == 1)
+        return 1;
       token = skip_2blank(token);
     }
 
@@ -236,7 +310,8 @@ int db_read_events() {
     i = 0;
     token = skip_blank(token);
     while (*token != '\0' && i < MAX_REQUESTS) {
-      events[count_events].requests[i++] = atoi(token);
+      if (strtol_(&token, &events[count_events].requests[i++]) == 1)
+        return 1;
       token = skip_2blank(token);
     }
     count_events++;
@@ -245,16 +320,18 @@ int db_read_events() {
   fclose(fp);
 #ifdef TEST_db_read_events
   printf("Read %d events\n", count_events);
-  printf("ID |   Name   |    Date    |   Address   | Type |  Details  | Owner |  Members  | Requests\n");
+  printf("ID |   Name   |    Date    |   Address   | Type |  Details  | Owner "
+         "|  Members  | Requests\n");
   for (int i = 0; i < count_events; i++) {
     int j;
-    printf("%2d | %8s | %10s | %11s | %4d | %9s | %5d | ", events[i].id, events[i].name,
-        events[i].date, events[i].address, events[i].type, events[i].details, events[i].owner);
+    printf("%2d | %8s | %10s | %11s | %4d | %9s | %5d | ", events[i].id,
+           events[i].name, events[i].date, events[i].address, events[i].type,
+           events[i].details, events[i].owner);
 
     for (j = 0; j < MAX_MEMBERS && events[i].members[j] != 0; j++) {
       printf("%d ", events[i].members[j]);
     }
-    printf("%*s", abs(9 - 2*j), "");
+    printf("%*s", abs(9 - 2 * j), "");
     printf(" | ");
 
     for (j = 0; j < MAX_REQUESTS && events[i].requests[j] != 0; j++) {
@@ -270,13 +347,14 @@ int db_save_events0() {
   FILE *fp = fopen(DB_EVENTS_BACKUP, "w");
   if (fp == NULL) {
     perror("Error opening events database");
-    exit(1);
+    return 1;
   }
 
   for (int i = 0; i < count_events; i++) {
     // Write ID, name, date, address, type, details, and owner
-    fprintf(fp, "%d | %s | %s | %s | %d | %s | %d | ", events[i].id, events[i].name,
-        events[i].date, events[i].address, events[i].type, events[i].details, events[i].owner);
+    fprintf(fp, "%2d| %s | %s | %s | %d | %s | %d | ", events[i].id,
+            events[i].name, events[i].date, events[i].address, events[i].type,
+            events[i].details, events[i].owner);
 
     // Write members
     for (int j = 0; j < MAX_MEMBERS && events[i].members[j] != 0; j++) {
@@ -299,18 +377,19 @@ int db_save_events() {
   FILE *fp = fopen(DB_EVENTS_BACKUP, "w");
   if (fp == NULL) {
     perror("Error opening events database");
-    exit(1);
+    return 1;
   }
 
   for (int i = 0; i < count_events; i++) {
     int j;
-    fprintf(fp, "%d | %8s | %10s | %11s | %4d | %9s | %5d | ", events[i].id, events[i].name,
-        events[i].date, events[i].address, events[i].type, events[i].details, events[i].owner);
+    fprintf(fp, "%2d| %8s | %10s | %11s | %4d | %9s | %5d | ", events[i].id,
+            events[i].name, events[i].date, events[i].address, events[i].type,
+            events[i].details, events[i].owner);
 
     for (j = 0; j < MAX_MEMBERS && events[i].members[j] != 0; j++) {
       fprintf(fp, "%d ", events[i].members[j]);
     }
-    fprintf(fp, "%*s", abs(9 - 2*j), "");
+    fprintf(fp, "%*s", abs(9 - 2 * j), "");
     fprintf(fp, " | ");
 
     for (j = 0; j < MAX_REQUESTS && events[i].requests[j] != 0; j++) {

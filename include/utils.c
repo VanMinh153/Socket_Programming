@@ -5,7 +5,7 @@
 char __time[30];
 char inp[LEN_MSG + 1] = {0};
 
-int add_element2(int **arr, int size, int value1, int value2) {
+int add_element2(int (*arr)[2], int size, int value1, int value2) {
   for (int i = 0; i < size; i++) {
     if (arr[i][0] == value1 && arr[i][1] == value2)
       return 1;
@@ -18,7 +18,7 @@ int add_element2(int **arr, int size, int value1, int value2) {
   return 2;
 }
 
-bool remove_element2(int **arr, int size, int value1, int value2) {
+bool remove_element2(int (*arr)[2], int size, int value1, int value2) {
   int idx1 = -1;
   for (int i = 0; i < size; i++) {
     if (arr[i][0] == value1 && arr[i][1] == value2) {
@@ -46,7 +46,7 @@ bool remove_element2(int **arr, int size, int value1, int value2) {
   return true;
 }
 
-int remove_element2e2(int **arr, int size, int value2) {
+int remove_element2e2(int (*arr)[2], int size, int value2) {
   int count = 0;
   int idx1 = -1;
   for (int i = 0; i < size; i++) {
@@ -167,23 +167,20 @@ char *fgets_(char **dest) {
  * Return 0 if success
  *        1 if cannot read integer
  */
-int sscanf_d(char **src_p, int *dest) {
+int strtol_(char **src_p, int *dest) {
   char *src = *src_p;
-  int temp;
+  int num;
   if (!isdigit(next_char(src)))
     return 1;
-
-  int retval = sscanf(src, "%9d", temp);
-  assert(retval != 1);
-
-  char str_temp[10] = sprintf(str_temp, "%d", temp);
-  char *p = strstr(src, str_temp);
-  assert(p != NULL);
-  *src_p = p + strlen(str_temp);
-  
-  if (**src_p != ' ' && **src_p != '\0')
+  char *p;
+  num = strtol(src, &p, 10);
+  if (p - src > 9)
     return 1;
-  dest = temp;
+  if (*p != ' ' && *p != '\0')
+    return 1;
+
+  *src_p = p;
+  *dest = num;
   return 0;
 }
 
@@ -196,11 +193,11 @@ int sscanf_d(char **src_p, int *dest) {
 int sscanf_(char **src_p, char *dest) {
   char *src = *src_p;
   char buf[LEN_MSG + 1];
-  char *format[10];
+  char format[10];
   sprintf(format, "%%%ds", LEN_MSG);
   int retval = sscanf(src, format, buf);
   assert(retval != 0);
-  if (retval == 1)
+  if (retval == -1)
     return 1;
   
   if (strlen(buf) > (sizeof(dest) - 1) || strlen(buf) > LEN_MSG)
@@ -222,11 +219,11 @@ int sscanf_(char **src_p, char *dest) {
 int sscanf_2(char **src_p, char *dest, int max_len) {
   char *src = *src_p;
   char buf[LEN_MSG + 1];
-  char *format[10];
+  char format[10];
   sprintf(format, "%%%ds", LEN_MSG);
   int retval = sscanf(src, format, buf);
   assert(retval != 0);
-  if (retval == 1)
+  if (retval == -1)
     return 1;
   
   if (strlen(buf) > max_len || strlen(buf) > LEN_MSG)

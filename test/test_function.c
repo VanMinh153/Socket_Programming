@@ -6,7 +6,7 @@
 #include <unistd.h>
 
 int main() {
-  char str[] = "  -1234567    ";
+  char str[] = "  12 ab  ";
   char str2[20] = "abcdefghij";
   char c = 'a';
   int d = 0;
@@ -18,7 +18,7 @@ int main() {
   // printf("return: %d\n", retval);
   // printf("`%c`\n", c);
 
-  int retval = sscanf(str, "%2u", &d);
+  int retval = sscanf(str, "%9u", &d);
   printf("return: %d\n", retval);
   printf("`%u`\n", d);
 
